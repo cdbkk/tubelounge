@@ -1,12 +1,35 @@
-# TubeLounge
+<p align="center">
+  <img src="docs/banner.svg" alt="TubeLounge" width="820">
+</p>
 
-Send YouTube videos from your computer to a Samsung TV without screen sharing your whole desktop.
+<p align="center">
+  <strong>Send YouTube from your computer to a Samsung TV without screen sharing your whole desktop.</strong>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/built%20with-FastAPI-009688" alt="Built with FastAPI">
+  <img src="https://img.shields.io/badge/Chrome-MV3%20extension-4285F4" alt="Chrome MV3 extension">
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs welcome">
+</p>
+
+<p align="center">
+  <a href="#install--run">Install</a> ·
+  <a href="#chrome-extension">Chrome extension</a> ·
+  <a href="#samsung-wi-fi-remote">TV remote</a> ·
+  <a href="#how-it-works--caveats">How it works</a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-desktop.png" alt="TubeLounge web interface" width="820">
+</p>
+
+> [!NOTE]
+> Your computer and the TV must be on the same local network. The TV may ask you to approve TubeLounge on screen the first time you connect.
 
 TubeLounge is a single user FastAPI app that talks to a paired Samsung YouTube TV session through the private YouTube Lounge API. Instead of mirroring your screen, it tells the TV's own YouTube app which video to play, so the TV streams straight from YouTube in full quality while your laptop just acts as the remote. You get play controls, a queue mirror, history, and a separate Tizen remote panel for power, volume, and app launching. A small Chrome extension can push YouTube links into the TV queue from the browser.
 
 **No screen mirroring.** Your desktop, notifications, and other tabs stay private. Only the video ID crosses the network; the TV does the streaming.
-
-<!-- Add a screenshot: ![TubeLounge](docs/screenshot.png) -->
 
 ## Features
 
@@ -25,7 +48,7 @@ TubeLounge is a single user FastAPI app that talks to a paired Samsung YouTube T
 - Node.js (for the static JS check step only)
 - A Samsung Tizen TV on the same LAN
 - A browser
-- [ytcast](https://github.com) for one time YouTube pairing (`ytcast -pair`)
+- `ytcast` for one time YouTube pairing (`ytcast -pair`)
 
 ## Install / Run
 
