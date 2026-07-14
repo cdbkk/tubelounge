@@ -18,7 +18,6 @@ TubeLounge is a single user FastAPI app that talks to a paired Samsung YouTube T
 - Wake on LAN for power on
 - Chrome MV3 extension: right click a YouTube link or page and choose **Add to TV queue**
 - First run onboarding and a TV setup panel for IP and MAC
-- Built in UI themes at `/designs` (17 theme mockups); the default UI is mono minimal
 
 ## Requirements
 

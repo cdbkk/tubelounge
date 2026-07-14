@@ -22,7 +22,6 @@ AUTH_PATH = Path(
     os.environ.get("TVCC_AUTH_PATH", "~/.cache/ytcast/ytcast.json")
 ).expanduser()
 STATIC_PATH = Path(__file__).with_name("static")
-DESIGNS_PATH = Path(__file__).with_name("designs")
 TV_CONFIG_PATH = Path(
     os.environ.get(
         "SAMSUNG_TV_CONFIG_PATH",
@@ -707,9 +706,4 @@ async def remote_forget():
         return state
 
 
-app.mount(
-    "/designs",
-    StaticFiles(directory=DESIGNS_PATH, html=True, check_dir=False),
-    name="designs",
-)
 app.mount("/", StaticFiles(directory=STATIC_PATH, html=True, check_dir=False), name="static")
