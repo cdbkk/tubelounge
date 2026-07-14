@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "TV Command Center",
+  "version": "1.0.0",
+  "description": "Add YouTube links to the local TV queue.",
+  "permissions": ["contextMenus"],
+  "host_permissions": ["http://127.0.0.1:8765/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "TV queue"
+  }
+}

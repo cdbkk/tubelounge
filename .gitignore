@@ -1,0 +1,12 @@
+.DS_Store
+.playwright-cli/
+.pytest_cache/
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+/ytcast.json
+/*auth*.json
+/samsung-token.txt
+/HANDOFF.md

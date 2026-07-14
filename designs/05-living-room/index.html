@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#110e15">
+    <title>TV Command Center — Living Room</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="room-title">
+        <span class="room-mark" aria-hidden="true">L</span>
+        <div>
+          <p class="eyebrow">Home · Living room</p>
+          <h1>Good evening</h1>
+        </div>
+      </div>
+      <div class="signal-stack" aria-label="Connection status">
+        <div class="signal" id="signal" data-state="loading" role="status" aria-live="polite">
+          <span class="signal-led" aria-hidden="true"></span>
+          <span id="signalText">YouTube syncing</span>
+        </div>
+        <div class="signal" id="remoteSignal" data-state="loading" role="status" aria-live="polite">
+          <span class="signal-led" aria-hidden="true"></span>
+          <span id="remoteSignalText">Remote loading</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <p class="error-banner" id="errorBanner" role="alert" hidden></p>
+
+      <section class="session" aria-labelledby="nowHeading">
+        <div class="now-grid">
+          <figure class="screen-frame no-image" id="screenFrame">
+            <img id="nowThumbnail" alt="" hidden>
+            <span class="screen-fallback">The room is quiet</span>
+            <figcaption class="live-bug" id="liveBug">Idle</figcaption>
+          </figure>
+
+          <div class="now-copy">
+            <div class="program-heading">
+              <p class="eyebrow" id="playbackState">Standby</p>
+              <p class="updated" id="updatedAt">Awaiting TV state</p>
+            </div>
+            <h2 id="nowHeading" class="sr-only">Now playing</h2>
+            <h3 id="videoTitle">Nothing playing</h3>
+            <p class="video-id" id="videoId">Choose a destination or send a YouTube link.</p>
+
+            <div class="timecode" aria-label="Playback time">
+              <span id="currentTime">00:00</span>
+              <span class="time-separator">of</span>
+              <span id="duration">00:00</span>
+            </div>
+
+            <div class="transport" aria-label="Playback controls">
+              <button class="icon-button" type="button" data-action="prev" aria-label="Previous video">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zm12 1-8 6 8 6z"/></svg>
+              </button>
+              <button class="icon-button play-button" id="playButton" type="button" data-action="play" aria-label="Play">
+                <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>
+                <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+              </button>
+              <button class="icon-button" type="button" data-action="next" aria-label="Next video">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM6 6l8 6-8 6z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="broadcast-rail">
+          <div class="rail-labels" aria-hidden="true">
+            <span>Now playing</span>
+            <span id="railQueueLabel">Queue clear</span>
+          </div>
+          <div class="rail-line">
+            <div class="rail-track">
+              <span class="rail-progress" id="railProgress"></span>
+              <input id="seek" type="range" min="0" max="0" value="0" step="1" aria-label="Seek position" disabled>
+            </div>
+            <div class="rail-future" id="railFuture" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="level-strip">
+          <label for="volume">Room volume <output id="volumeValue" for="volume">--</output></label>
+          <input id="volume" type="range" min="0" max="100" value="50" step="1" aria-label="TV volume" disabled>
+        </div>
+      </section>
+
+      <section class="destinations" aria-labelledby="destinationsHeading">
+        <header class="section-heading destination-heading">
+          <div>
+            <p class="eyebrow">Watch</p>
+            <h2 id="destinationsHeading">Choose a destination</h2>
+          </div>
+          <span class="remote-protocol">Samsung TV</span>
+        </header>
+        <div class="app-launcher" aria-label="Launch a TV app">
+          <button class="app-button youtube" type="button" data-app="youtube">
+            <span class="destination-icon" aria-hidden="true">▶</span>
+            <span class="destination-name">YouTube</span>
+            <span class="destination-note">Videos &amp; music</span>
+          </button>
+          <button class="app-button netflix" type="button" data-app="netflix">
+            <span class="destination-icon" aria-hidden="true">N</span>
+            <span class="destination-name">Netflix</span>
+            <span class="destination-note">Series &amp; films</span>
+          </button>
+          <button class="app-button max" type="button" data-app="max">
+            <span class="destination-icon" aria-hidden="true">m</span>
+            <span class="destination-name">Max</span>
+            <span class="destination-note">Premium stories</span>
+          </button>
+        </div>
+
+        <div class="url-dock" aria-labelledby="urlHeading">
+          <div class="dock-label">
+            <p class="eyebrow">Have a link?</p>
+            <h2 id="urlHeading">Send it to the screen</h2>
+          </div>
+          <form id="urlForm">
+            <label class="sr-only" for="videoUrl">YouTube video URL</label>
+            <input id="videoUrl" name="url" type="url" inputmode="url" autocomplete="url" placeholder="Paste a YouTube URL" required>
+            <button class="button secondary" type="submit" name="intent" value="queue">Add next</button>
+            <button class="button primary" type="submit" name="intent" value="play">Play now</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="remote-section" aria-labelledby="remoteHeading">
+        <header class="section-heading">
+          <div>
+            <p class="eyebrow">Control island</p>
+            <h2 id="remoteHeading">Living room TV</h2>
+          </div>
+          <span class="remote-protocol">Tizen · Wi-Fi</span>
+        </header>
+
+        <div class="remote-body">
+          <div class="remote-controls">
+            <div class="dpad" aria-label="TV navigation">
+              <button type="button" data-remote="up" data-repeat aria-label="Up">↑</button>
+              <button type="button" data-remote="left" data-repeat aria-label="Left">←</button>
+              <button class="dpad-enter" type="button" data-remote="enter" aria-label="Select">OK</button>
+              <button type="button" data-remote="right" data-repeat aria-label="Right">→</button>
+              <button type="button" data-remote="down" data-repeat aria-label="Down">↓</button>
+            </div>
+
+            <div class="remote-rockers">
+              <div class="rocker" aria-label="TV volume">
+                <button type="button" data-remote="volume_up" data-repeat aria-label="Volume up">+</button>
+                <button class="rocker-label" type="button" data-remote="mute" aria-label="Mute">VOL</button>
+                <button type="button" data-remote="volume_down" data-repeat aria-label="Volume down">−</button>
+              </div>
+              <button class="media-key" type="button" data-remote="play_pause" aria-label="TV play or pause">▶︎ Ⅱ</button>
+              <div class="rocker" aria-label="TV channel">
+                <button type="button" data-remote="channel_up" data-repeat aria-label="Channel up">+</button>
+                <span class="rocker-label">CH</span>
+                <button type="button" data-remote="channel_down" data-repeat aria-label="Channel down">−</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="remote-shortcuts" aria-label="TV shortcuts">
+            <button class="remote-button wake" type="button" data-remote="power_on"><span aria-hidden="true">●</span> Wake TV</button>
+            <button class="remote-button" type="button" data-remote="home">Home</button>
+            <button class="remote-button" type="button" data-remote="back">Back</button>
+            <button class="remote-button" type="button" data-remote="source">Source</button>
+            <button class="remote-button power-off" type="button" data-remote="power_off">Power off</button>
+          </div>
+        </div>
+
+        <details class="remote-setup" id="remoteSetup">
+          <summary>TV connection settings</summary>
+          <div class="setup-body">
+            <form id="remoteSetupForm">
+              <label for="tvHost">TV IP</label>
+              <input id="tvHost" name="host" inputmode="decimal" autocomplete="off" placeholder="192.168.1.50" required>
+              <label for="tvMac">TV MAC</label>
+              <input id="tvMac" name="mac" autocomplete="off" placeholder="aa:bb:cc:dd:ee:ff" required>
+              <button class="button secondary" type="submit">Save settings</button>
+            </form>
+            <div class="setup-actions">
+              <button class="button primary" id="remoteTest" type="button">Test / approve</button>
+              <button class="button secondary" id="remoteForget" type="button">Forget approval</button>
+            </div>
+            <p class="setup-help" id="remoteHelp">Turn the TV on, test the connection, then approve “TV Command Center” on screen.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="queue-section" aria-labelledby="queueHeading">
+        <header class="section-heading">
+          <div>
+            <p class="eyebrow">Later tonight</p>
+            <h2 id="queueHeading">Up next</h2>
+          </div>
+          <span class="queue-count" id="queueCount">0 queued</span>
+        </header>
+        <ol class="queue-list" id="queueList" aria-live="polite"></ol>
+        <p class="empty-queue" id="emptyQueue">Nothing lined up yet.</p>
+        <p class="mirror-note">This list mirrors commands sent here. Removing an item briefly resyncs the TV playlist.</p>
+      </section>
+    </main>
+
+    <template id="queueItemTemplate">
+      <li class="queue-card">
+        <a class="queue-link" target="_blank" rel="noopener noreferrer">
+          <span class="queue-thumb no-image">
+            <img alt="" hidden>
+            <span class="thumb-fallback">No preview</span>
+            <span class="queue-number"></span>
+          </span>
+          <span class="queue-meta">
+            <strong></strong>
+            <span>Up next</span>
+          </span>
+        </a>
+        <button class="queue-remove" type="button" aria-label="Remove from TV queue">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>
+        </button>
+      </li>
+    </template>
+  </body>
+</html>
