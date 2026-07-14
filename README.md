@@ -1,13 +1,16 @@
 # TubeLounge
 
-A local web remote for your Samsung TV's YouTube app, plus a Wi-Fi remote for the TV itself.
+Send YouTube videos from your computer to a Samsung TV without screen sharing your whole desktop.
 
-TubeLounge is a single user FastAPI app that talks to a paired Samsung YouTube TV session through the private YouTube Lounge API. You get play controls, a queue mirror, history, and a separate Tizen remote panel for power, volume, and app launching. A small Chrome extension can push YouTube links into the TV queue from the browser.
+TubeLounge is a single user FastAPI app that talks to a paired Samsung YouTube TV session through the private YouTube Lounge API. Instead of mirroring your screen, it tells the TV's own YouTube app which video to play, so the TV streams straight from YouTube in full quality while your laptop just acts as the remote. You get play controls, a queue mirror, history, and a separate Tizen remote panel for power, volume, and app launching. A small Chrome extension can push YouTube links into the TV queue from the browser.
+
+**No screen mirroring.** Your desktop, notifications, and other tabs stay private. Only the video ID crosses the network; the TV does the streaming.
 
 <!-- Add a screenshot: ![TubeLounge](docs/screenshot.png) -->
 
 ## Features
 
+- Cast YouTube to the TV without screen mirroring; the TV streams from YouTube, your desktop stays private
 - Local web UI for transport control: play/pause, previous/next, seek, volume, play now, queue add, and queue removal
 - Live now playing state with progress, history, and an app side queue mirror
 - Queue removal rebuilds the mirrored TV playlist while preserving playback position
