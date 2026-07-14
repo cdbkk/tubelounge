@@ -1,10 +1,10 @@
-# TV Command Center
+# TubeLounge
 
 A local web remote for your Samsung TV's YouTube app, plus a Wi-Fi remote for the TV itself.
 
-TV Command Center is a single user FastAPI app that talks to a paired Samsung YouTube TV session through the private YouTube Lounge API. You get play controls, a queue mirror, history, and a separate Tizen remote panel for power, volume, and app launching. A small Chrome extension can push YouTube links into the TV queue from the browser.
+TubeLounge is a single user FastAPI app that talks to a paired Samsung YouTube TV session through the private YouTube Lounge API. You get play controls, a queue mirror, history, and a separate Tizen remote panel for power, volume, and app launching. A small Chrome extension can push YouTube links into the TV queue from the browser.
 
-<!-- Add a screenshot: ![TV Command Center](docs/screenshot.png) -->
+<!-- Add a screenshot: ![TubeLounge](docs/screenshot.png) -->
 
 ## Features
 
@@ -36,7 +36,7 @@ ytcast -pair "TV-CODE"
 The server reuses the pairing in `~/.cache/ytcast/ytcast.json`. Set `TVCC_AUTH_PATH=/path/to/ytcast.json` if your cache lives elsewhere.
 
 ```
-cd ~/code/tv-command-center
+cd tubelounge
 uv run --with-requirements requirements.txt uvicorn app:app --host 127.0.0.1 --port 8765
 ```
 
@@ -94,4 +94,4 @@ Not affiliated with Google, Samsung, or YouTube.
 
 MIT. See [LICENSE](LICENSE).
 
-Repo: https://github.com/cdbkk/tv-command-center
+Repo: https://github.com/cdbkk/tubelounge

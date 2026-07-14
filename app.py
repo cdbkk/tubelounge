@@ -348,7 +348,7 @@ def _get_tv_remote():
             token_file=str(TV_TOKEN_PATH),
             timeout=15,
             key_press_delay=0.08,
-            name="TV Command Center",
+            name="TubeLounge",
         )
     return tv_remote
 
@@ -413,7 +413,7 @@ async def lifespan(_app):
     state.clear()
     state.update(_initial_state())
     sockets.clear()
-    lounge = YtLoungeApi("TV Command Center")
+    lounge = YtLoungeApi("TubeLounge")
     entered = False
     try:
         await lounge.__aenter__()

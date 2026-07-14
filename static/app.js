@@ -105,7 +105,7 @@ function renderRemote(remote) {
   el.remoteSignalText.textContent = labels[remote.status] || "Remote unknown";
   el.remoteHelp.textContent = error || (
     remote.status === "approval_required"
-      ? "Turn the TV on, test the connection, then approve “TV Command Center” on screen."
+      ? "Turn the TV on, test the connection, then approve “TubeLounge” on screen."
       : "Samsung control uses the local Wi-Fi API; settings stay on this Mac."
   );
   el.remoteHelp.classList.toggle("has-error", Boolean(error));
