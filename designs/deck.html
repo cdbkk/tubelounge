@@ -93,6 +93,7 @@
         background: linear-gradient(145deg, #3a3238 0%, #24222b 42%, #14161c 100%);
         box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 10px 26px -12px rgba(0,0,0,0.8); }
       .np-thumb::after { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 90% at 30% 15%, rgba(255,255,255,0.12), transparent 60%); }
+      .np-off { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; color: var(--ink-4); font: 500 10px/1 "DM Mono", monospace; letter-spacing: 0.16em; text-transform: uppercase; }
       .onair { position: absolute; top: 11px; left: 11px; display: flex; align-items: center; gap: 7px; padding: 5px 9px;
         border-radius: 999px; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); color: #ffd9d6;
         font: 600 8px/1 "DM Mono", monospace; letter-spacing: 0.16em; }
@@ -200,6 +201,7 @@
       .tray-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
       .tray-head h3 { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
       .tray-head .count { color: var(--ink-4); font: 400 10px/1 "DM Mono", monospace; letter-spacing: 0.08em; }
+      .tray-empty { color: var(--ink-4); font: 400 12px/1.6 "DM Mono", monospace; padding: 4px 0 2px; }
       .filmstrip { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
       .film { position: relative; }
       .film-thumb { position: relative; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden;
@@ -277,7 +279,7 @@
       <div class="cast">
         <label class="cast-field">
           <svg viewBox="0 0 24 24"><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><path d="M2 12a6 6 0 0 1 6 6"/><path d="M2 16a2 2 0 0 1 2 2"/></svg>
-          <input type="url" placeholder="Paste a YouTube URL to cast…" value="https://youtube.com/watch?v=jfKfPfyJRdk">
+          <input type="url" placeholder="Paste a YouTube URL to cast…">
         </label>
         <button class="btn">Queue</button>
         <button class="btn go">Cast now</button>
@@ -288,28 +290,28 @@
         <!-- LEFT: now playing -->
         <div class="col-l">
           <div class="np">
-            <div class="np-thumb"><span class="onair"><i></i> ON AIR</span></div>
+            <div class="np-thumb"><span class="np-off">No signal</span></div>
             <div class="np-meta">
-              <p class="eyebrow">Now playing</p>
-              <h2>Lofi Hip Hop Radio — beats to relax and study to</h2>
-              <p class="src">youtube.com/watch?v=jfKfPfyJRdk</p>
+              <p class="eyebrow">Standby</p>
+              <h2>Nothing playing</h2>
+              <p class="src">Paste a YouTube URL to cast to the screen.</p>
               <div class="scrub">
-                <div class="scrub-line"><span class="scrub-fill"></span><span class="scrub-knob"></span></div>
-                <div class="scrub-time"><span>00:42</span><span class="dur">03:18</span></div>
+                <div class="scrub-line"><span class="scrub-fill" style="width:0"></span></div>
+                <div class="scrub-time"><span>00:00</span><span class="dur">00:00</span></div>
               </div>
             </div>
           </div>
 
           <div class="transport">
             <button class="key tkey" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm12 1-8 6 8 6z"/></svg></button>
-            <button class="tkey play" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
+            <button class="tkey play" aria-label="Play"><svg viewBox="0 0 24 24" style="transform:translateX(1px)"><path d="m8 5 11 7-11 7z"/></svg></button>
             <button class="key tkey" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM6 6l8 6-8 6z"/></svg></button>
           </div>
 
           <div class="fader">
             <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15 9a3 3 0 0 1 0 6"/><path d="M18 6a7 7 0 0 1 0 12"/></svg>
-            <div class="fader-track"><span class="fader-fill"></span><span class="fader-knob"></span></div>
-            <span class="fader-val">34</span>
+            <div class="fader-track"><span class="fader-fill" style="width:0"></span></div>
+            <span class="fader-val">--</span>
           </div>
         </div>
 
@@ -356,7 +358,7 @@
                 </button>
               </div>
               <div class="vol-side">
-                <output class="vol-readout" aria-label="Volume">34</output>
+                <output class="vol-readout" aria-label="Volume">--</output>
                 <span class="vol-cap">Volume</span>
                 <button class="key vol-mute" type="button" aria-label="Mute">
                   <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" stroke="none"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -369,50 +371,12 @@
 
       <!-- TRAY -->
       <div class="tray">
-        <div class="tray-head"><h3>Up next</h3><span class="count">2 queued</span></div>
-        <div class="filmstrip">
-          <div class="film">
-            <div class="film-thumb"><span class="film-num">1</span><button class="film-rm" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-            <p class="film-title">Weightless — Marconi Union (extended)</p>
-          </div>
-          <div class="film">
-            <div class="film-thumb"><span class="film-num">2</span><button class="film-rm" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-            <p class="film-title">Tokyo night drive — 4K ambient city loop</p>
-          </div>
-          <div class="film" style="opacity:.5">
-            <div class="film-thumb" style="display:grid;place-items:center;color:var(--ink-4);font:400 11px/1 'DM Mono',monospace">＋ add more</div>
-            <p class="film-title" style="color:var(--ink-4)">Paste a URL to line one up</p>
-          </div>
-        </div>
+        <div class="tray-head"><h3>Up next</h3><span class="count">Empty</span></div>
+        <p class="tray-empty">Nothing queued yet. Paste a URL above to line something up.</p>
 
         <div class="recent">
-          <div class="tray-head" style="margin-bottom:2px"><h3>Recent</h3><span class="count">2 watched</span></div>
-          <div class="ritem">
-            <button class="rrow" type="button" aria-label="Play again: Coffee shop jazz">
-              <span class="rthumb"><svg class="rplay-ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-              <span class="rmeta"><strong>Coffee shop jazz — warm morning blend</strong><span>Played · 2h ago</span></span>
-            </button>
-            <details class="rmenu">
-              <summary aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></summary>
-              <div class="rmenu-pop">
-                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg> Play again</button>
-                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M4 7h11M4 12h11M4 17h7"/><path d="M18 12v7M14.5 15.5h7"/></svg> Add to queue</button>
-              </div>
-            </details>
-          </div>
-          <div class="ritem">
-            <button class="rrow" type="button" aria-label="Play again: Rainy window lofi">
-              <span class="rthumb"><svg class="rplay-ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-              <span class="rmeta"><strong>Rainy window lofi — 3 hour loop</strong><span>Played · yesterday</span></span>
-            </button>
-            <details class="rmenu">
-              <summary aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></summary>
-              <div class="rmenu-pop">
-                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg> Play again</button>
-                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M4 7h11M4 12h11M4 17h7"/><path d="M18 12v7M14.5 15.5h7"/></svg> Add to queue</button>
-              </div>
-            </details>
-          </div>
+          <div class="tray-head" style="margin-bottom:2px"><h3>Recent</h3><span class="count">None yet</span></div>
+          <p class="tray-empty">Nothing watched yet. Cast a video and it lands here.</p>
         </div>
       </div>
     </div>
