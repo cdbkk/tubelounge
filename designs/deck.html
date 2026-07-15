@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TubeLounge — Deck</title>
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0d0e'/%3E%3Cpath d='M8 10h34v8H29v36h-9V18H8v-8Zm38 17h9v27H34v-8h12V27Z' fill='%23f4f3f1'/%3E%3Crect x='47' y='10' width='8' height='8' rx='2' fill='%23f4f3f1' opacity='.42'/%3E%3C/svg%3E">
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
       /*
@@ -49,9 +49,9 @@
       /* ---- header ---- */
       .head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 22px; }
       .brand { display: flex; align-items: center; gap: 12px; }
-      .brand-mark { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
+      .brand-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--ink);
         background: linear-gradient(180deg, var(--raised-top), var(--raised-bot)); box-shadow: var(--key-shadow); }
-      .brand-mark i { width: 9px; height: 9px; border-radius: 2px; background: var(--ink); }
+      .brand-mark svg { width: 16px; height: 16px; }
       .brand h1 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
       .head-right { display: flex; align-items: center; gap: 20px; }
       .status { display: flex; align-items: center; gap: 16px; }
@@ -261,7 +261,7 @@
     <div class="wrap">
       <!-- HEADER -->
       <header class="head">
-        <div class="brand"><span class="brand-mark"><i></i></span><h1>TubeLounge</h1></div>
+        <div class="brand"><span class="brand-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 10h34v8H29v36h-9V18H8v-8Zm38 17h9v27H34v-8h12V27Z" fill="currentColor"/><rect x="47" y="10" width="8" height="8" rx="2" fill="currentColor" opacity=".42"/></svg></span><h1>TubeLounge</h1></div>
         <div class="head-right">
           <div class="status">
             <span class="stat conn"><span class="dot"></span> YouTube</span>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TubeLounge — logo concepts</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@600;700&display=swap');
+
+    :root {
+      --bg: #0d0d0e;
+      --ink: #f4f3f1;
+      --ink-2: #a4a3a0;
+      --ink-3: #6d6c69;
+      --line: rgba(255, 255, 255, 0.09);
+      --live: #f0544c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 50% -20%, rgba(255,255,255,.055), transparent 36rem),
+        var(--bg);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(18px, 2vw, 23px);
+      font-weight: 600;
+      letter-spacing: -.035em;
+    }
+
+    .count,
+    .index,
+    .label {
+      color: var(--ink-3);
+      font: 500 10px/1 "DM Mono", monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      min-height: 318px;
+      padding: 26px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.018);
+      box-shadow: inset 0 1px rgba(255,255,255,.025);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,.018), transparent 45%);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 43px;
+    }
+
+    .lockup {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      gap: 15px;
+      color: var(--ink);
+    }
+
+    .mark {
+      display: block;
+      width: 56px;
+      height: 56px;
+      flex: 0 0 auto;
+      color: inherit;
+    }
+
+    .wordmark {
+      white-space: nowrap;
+      font-size: clamp(22px, 2.45vw, 30px);
+      font-weight: 650;
+      line-height: 1;
+      letter-spacing: -.058em;
+    }
+
+    .wordmark-only {
+      display: inline-flex;
+      align-items: center;
+      min-height: 56px;
+      font-size: clamp(30px, 3.2vw, 42px);
+      font-weight: 700;
+      letter-spacing: -.075em;
+    }
+
+    .wordmark-only .cut {
+      position: relative;
+      margin-right: -.01em;
+    }
+
+    .wordmark-only .cut::after {
+      content: "";
+      position: absolute;
+      width: .45em;
+      height: 2px;
+      left: .28em;
+      top: .48em;
+      background: var(--bg);
+      transform: rotate(-24deg);
+      box-shadow: 0 0 0 1px rgba(13,13,14,.35);
+    }
+
+    .specimens {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 72px 1fr 1fr;
+      gap: 10px;
+      margin-top: 38px;
+    }
+
+    .specimen {
+      min-width: 0;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--ink);
+      background: rgba(0,0,0,.14);
+    }
+
+    .specimen.favicon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .specimen svg {
+      width: 34px;
+      height: 34px;
+      color: inherit;
+    }
+
+    .specimen .miniword {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: -.055em;
+    }
+
+    .specimen .miniword svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .mono { --accent: currentColor; }
+    .normal { --accent: var(--live); }
+
+    .caption {
+      position: relative;
+      z-index: 1;
+      margin: 15px 0 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.45;
+      letter-spacing: -.01em;
+    }
+
+    .card-number {
+      position: absolute;
+      right: 22px;
+      bottom: 17px;
+      color: rgba(255,255,255,.035);
+      font: 700 50px/1 "DM Mono", monospace;
+      letter-spacing: -.08em;
+    }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 560px); padding-top: 32px; }
+      header { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .grid { grid-template-columns: 1fr; }
+      .card { padding: 22px; }
+      .card-head { margin-bottom: 36px; }
+      .wordmark { font-size: 27px; }
+      .wordmark-only { font-size: 37px; }
+    }
+
+    @media (max-width: 390px) {
+      .card { padding: 20px; }
+      .mark { width: 48px; height: 48px; }
+      .wordmark { font-size: 24px; }
+      .specimens { grid-template-columns: 62px 1fr 1fr; }
+      .specimen .miniword { font-size: 11px; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <defs>
+      <symbol id="screen-play" viewBox="0 0 64 64">
+        <rect x="7" y="10" width="50" height="38" rx="8" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path d="M28 21.5 42 29.8a2.5 2.5 0 0 1 0 4.4L28 42.5V21.5Z" fill="currentColor"/>
+        <path d="M25 55h14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="remote-orbit" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="32" cy="32" r="6" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path d="m32 13 5 7H27l5-7Zm19 19-7 5V27l7 5ZM32 51l-5-7h10l-5 7ZM13 32l7-5v10l-7-5Z" fill="currentColor"/>
+      </symbol>
+
+      <symbol id="tl-relay" viewBox="0 0 64 64">
+        <path d="M8 10h34v8H29v36h-9V18H8v-8Zm38 17h9v27H34v-8h12V27Z" fill="currentColor"/>
+        <rect x="47" y="10" width="8" height="8" rx="2" fill="currentColor" opacity=".42"/>
+      </symbol>
+
+      <symbol id="standby-lounge" viewBox="0 0 64 64">
+        <path d="M22 14.7A23 23 0 1 0 42 14.7" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path d="M32 7v25" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path d="M19 50h26" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="broadcast-field" viewBox="0 0 64 64">
+        <circle cx="16" cy="32" r="4" fill="var(--accent,currentColor)"/>
+        <path d="M27 20a17 17 0 0 1 0 24M35 13a27 27 0 0 1 0 38M43 7a35 35 0 0 1 0 50" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="channel-cut" viewBox="0 0 64 64">
+        <path d="M10 11h44v10H38v32H26V21H10V11Z" fill="currentColor"/>
+        <path d="m25 37 16-9" fill="none" stroke="var(--bg,#0d0d0e)" stroke-width="4"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main>
+    <header>
+      <h1>TubeLounge — logo concepts</h1>
+      <div class="count">06 directions / 2026</div>
+    </header>
+
+    <section class="grid" aria-label="TubeLounge logo concepts">
+      <article class="card normal">
+        <div class="card-head"><span class="index">01 / screen</span><span class="label">primary lockup</span></div>
+        <div class="lockup">
+          <svg class="mark" role="img" aria-label="Screen with play symbol"><use href="#screen-play"/></svg>
+          <span class="wordmark">TubeLounge</span>
+        </div>
+        <div class="specimens">
+          <div class="specimen favicon normal" title="20 pixel favicon"><svg><use href="#screen-play"/></svg></div>
+          <div class="specimen normal"><div class="miniword"><svg><use href="#screen-play"/></svg><span>TubeLounge</span></div></div>
+          <div class="specimen mono"><div class="miniword"><svg><use href="#screen-play"/></svg><span>TubeLounge</span></div></div>
+        </div>
+        <p class="caption">Aperture Play — the living-room screen reduced to one decisive gesture.</p>
+        <span class="card-number">01</span>
+      </article>
+
+      <article class="card normal">
+        <div class="card-head"><span class="index">02 / control</span><span class="label">primary lockup</span></div>
+        <div class="lockup">
+          <svg class="mark" role="img" aria-label="Circular remote control d-pad"><use href="#remote-orbit"/></svg>
+          <span class="wordmark">TubeLounge</span>
+        </div>
+        <div class="specimens">
+          <div class="specimen favicon normal" title="20 pixel favicon"><svg><use href="#remote-orbit"/></svg></div>
+          <div class="specimen normal"><div class="miniword"><svg><use href="#remote-orbit"/></svg><span>TubeLounge</span></div></div>
+          <div class="specimen mono"><div class="miniword"><svg><use href="#remote-orbit"/></svg><span>TubeLounge</span></div></div>
+        </div>
+        <p class="caption">Remote Orbit — a tactile d-pad ring with hardware-grade symmetry.</p>
+        <span class="card-number">02</span>
+      </article>
+
+      <article class="card normal">
+        <div class="card-head"><span class="index">03 / monogram</span><span class="label">primary lockup</span></div>
+        <div class="lockup">
+          <svg class="mark" role="img" aria-label="Geometric T and L monogram"><use href="#tl-relay"/></svg>
+          <span class="wordmark">TubeLounge</span>
+        </div>
+        <div class="specimens">
+          <div class="specimen favicon normal" title="20 pixel favicon"><svg><use href="#tl-relay"/></svg></div>
+          <div class="specimen normal"><div class="miniword"><svg><use href="#tl-relay"/></svg><span>TubeLounge</span></div></div>
+          <div class="specimen mono"><div class="miniword"><svg><use href="#tl-relay"/></svg><span>TubeLounge</span></div></div>
+        </div>
+        <p class="caption">TL Relay — interlocked initials built like a compact AV circuit.</p>
+        <span class="card-number">03</span>
+      </article>
+
+      <article class="card normal">
+        <div class="card-head"><span class="index">04 / standby</span><span class="label">primary lockup</span></div>
+        <div class="lockup">
+          <svg class="mark" role="img" aria-label="Standby power symbol with lounge baseline"><use href="#standby-lounge"/></svg>
+          <span class="wordmark">TubeLounge</span>
+        </div>
+        <div class="specimens">
+          <div class="specimen favicon normal" title="20 pixel favicon"><svg><use href="#standby-lounge"/></svg></div>
+          <div class="specimen normal"><div class="miniword"><svg><use href="#standby-lounge"/></svg><span>TubeLounge</span></div></div>
+          <div class="specimen mono"><div class="miniword"><svg><use href="#standby-lounge"/></svg><span>TubeLounge</span></div></div>
+        </div>
+        <p class="caption">Soft Standby — the universal power glyph settles onto a quiet lounge line.</p>
+        <span class="card-number">04</span>
+      </article>
+
+      <article class="card normal">
+        <div class="card-head"><span class="index">05 / broadcast</span><span class="label">live accent</span></div>
+        <div class="lockup">
+          <svg class="mark" role="img" aria-label="Broadcast signal rings with live tally dot"><use href="#broadcast-field"/></svg>
+          <span class="wordmark">TubeLounge</span>
+        </div>
+        <div class="specimens">
+          <div class="specimen favicon normal" title="20 pixel favicon"><svg><use href="#broadcast-field"/></svg></div>
+          <div class="specimen normal"><div class="miniword"><svg><use href="#broadcast-field"/></svg><span>TubeLounge</span></div></div>
+          <div class="specimen mono"><div class="miniword"><svg><use href="#broadcast-field"/></svg><span>TubeLounge</span></div></div>
+        </div>
+        <p class="caption">Broadcast Field — widening signal rings anchored by a restrained on-air tally.</p>
+        <span class="card-number">05</span>
+      </article>
+
+      <article class="card normal">
+        <div class="card-head"><span class="index">06 / wordmark</span><span class="label">responsive type</span></div>
+        <div class="lockup">
+          <span class="wordmark-only"><span class="cut">T</span>ubeLounge</span>
+        </div>
+        <div class="specimens">
+          <div class="specimen favicon normal" title="20 pixel derived micro glyph"><svg><use href="#channel-cut"/></svg></div>
+          <div class="specimen normal"><span class="miniword">TubeLounge</span></div>
+          <div class="specimen mono"><span class="miniword">TubeLounge</span></div>
+        </div>
+        <p class="caption">Channel Cut — a wordmark-only identity with a broadcast slash and derived micro T.</p>
+        <span class="card-number">06</span>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

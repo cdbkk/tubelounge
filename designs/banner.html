@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+      :root{
+        --bg:#0b0b0c; --raised-top:#262528; --raised-bot:#1a1a1c; --well:#0a0a0b;
+        --ink:#f4f3f1; --ink-2:#a4a3a0; --ink-3:#6d6c69; --hair:rgba(255,255,255,0.08); --sheen:rgba(255,255,255,0.05);
+        --key-shadow:0 1px 0 var(--sheen) inset, 0 2px 5px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.5);
+      }
+      *{box-sizing:border-box;margin:0}
+      html,body{width:1280px;height:320px;overflow:hidden}
+      .banner{position:relative;width:1280px;height:320px;background:
+          radial-gradient(120% 160% at 82% 0%, #17171b 0%, var(--bg) 58%);
+        font-family:"Space Grotesk",sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;
+        display:flex;align-items:center;padding:0 88px;}
+      .banner::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px var(--hair);pointer-events:none}
+
+      /* left lockup */
+      .left{position:relative;z-index:2;max-width:720px}
+      .lockup{display:flex;align-items:center;gap:20px}
+      .mark{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;color:var(--ink);
+        background:linear-gradient(180deg,var(--raised-top),var(--raised-bot));box-shadow:var(--key-shadow)}
+      .mark svg{width:38px;height:38px}
+      .word{font-size:58px;font-weight:700;letter-spacing:-0.03em;color:var(--ink)}
+      .tag{margin-top:26px;font-size:20px;line-height:1.5;font-weight:400;color:var(--ink-2);max-width:600px;text-wrap:balance}
+      .tag b{color:var(--ink);font-weight:600}
+      .meta{margin-top:24px;display:flex;gap:10px}
+      .chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;
+        background:var(--well);box-shadow:0 0 0 1px var(--hair) inset;color:var(--ink-3);
+        font:500 11px/1 "DM Mono",monospace;letter-spacing:0.08em;text-transform:uppercase}
+      .chip i{width:6px;height:6px;border-radius:50%;background:var(--ink-2)}
+
+      /* right motif: faint dpad ring bleeding off the edge */
+      .motif{position:absolute;right:-70px;top:50%;transform:translateY(-50%);z-index:1;
+        width:360px;height:360px;color:var(--ink);opacity:0.06}
+      .motif svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </head>
+  <body>
+    <div class="banner">
+      <div class="left">
+        <div class="lockup">
+          <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 10h34v8H29v36h-9V18H8v-8Zm38 17h9v27H34v-8h12V27Z" fill="currentColor"/><rect x="47" y="10" width="8" height="8" rx="2" fill="currentColor" opacity=".42"/></svg></span>
+          <span class="word">TubeLounge</span>
+        </div>
+        <p class="tag">Cast YouTube to your Samsung TV and drive the remote from any browser on your Wi-Fi. <b>No screen mirroring.</b></p>
+        <div class="meta">
+          <span class="chip"><i></i> Cast &amp; queue</span>
+          <span class="chip"><i></i> Full remote</span>
+          <span class="chip"><i></i> Tizen · local</span>
+        </div>
+      </div>
+      <div class="motif" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="96"/>
+          <circle cx="100" cy="100" r="34"/>
+          <path d="M100 26v22M100 152v22M26 100h22M152 100h22"/>
+          <path d="M92 44l8-8 8 8M92 156l8 8 8-8M44 92l-8 8 8 8M156 92l8 8-8 8"/>
+        </svg>
+      </div>
+    </div>
+  </body>
+</html>

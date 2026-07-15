@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="TubeLounge" width="820">
+  <img src="docs/banner.png" alt="TubeLounge" width="820">
 </p>
 
 <p align="center">
