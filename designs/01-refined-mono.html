@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TubeLounge — Refined Mono</title>
+    <link rel="icon" href="data:,">
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap");
+      :root {
+        color-scheme: dark;
+        --bg: #0a0a0a;
+        --surface: #131313;
+        --raised: #191919;
+        --line: #262626;
+        --line-strong: #333;
+        --ink: #f4f4f4;
+        --muted: #a6a6a6;
+        --quiet: #6f6f6f;
+        --inverse: #f4f4f4;
+        --inverse-ink: #0a0a0a;
+        /* one signal accent */
+        --accent: #ffb02e;
+        --accent-ink: #0a0a0a;
+        --accent-dim: #4a3410;
+        --ease: cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Manrope", sans-serif; -webkit-font-smoothing: antialiased; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      button { font-family: inherit; }
+
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 40px; width: min(1760px, calc(100% - 88px)); margin-inline: auto; min-height: 92px; }
+      .brand { display: flex; align-items: center; gap: 16px; }
+      .brand-mark { width: 16px; height: 16px; background: var(--accent); }
+      h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+      .topbar-right { display: flex; align-items: center; gap: 28px; }
+      .signal-stack { display: grid; gap: 8px; }
+      .signal { display: flex; align-items: center; gap: 9px; color: var(--muted); font: 500 10px/1 "DM Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+      .signal-led { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+      .settings-toggle { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; box-shadow: 0 1px 0 rgba(0,0,0,0.5); transition: border-color 140ms var(--ease), color 140ms var(--ease); }
+      .settings-toggle:hover { border-color: var(--accent); color: var(--accent); }
+      .settings-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+      main { width: min(1760px, calc(100% - 88px)); margin-inline: auto; padding-bottom: 100px; }
+
+      .url-dock { padding: 32px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .url-dock form { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 10px; }
+      input[type="url"] { min-width: 0; height: 54px; padding: 0 18px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 400 13px/1 "DM Mono", monospace; outline: 0; }
+      input::placeholder { color: var(--quiet); }
+      input[type="url"]:focus { border-color: var(--accent); }
+
+      .button { min-height: 54px; padding: 0 24px; border: 1px solid var(--line-strong); background: var(--raised); color: var(--ink); cursor: pointer; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; box-shadow: 0 1px 0 rgba(0,0,0,0.5); transition: transform 120ms var(--ease), border-color 140ms var(--ease), background-color 140ms var(--ease); }
+      .button.primary { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+      .button:hover { border-color: var(--accent); }
+      .button.primary:hover { filter: brightness(1.08); }
+      .button:active { transform: scale(0.97); }
+
+      .console { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); padding: 56px 0 64px; }
+      .now-playing { min-width: 0; display: flex; flex-direction: column; padding-right: 48px; }
+      .console-side { min-width: 0; display: flex; flex-direction: column; padding-left: 48px; border-left: 1px solid var(--line); }
+      .remote-part { margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--line); }
+
+      .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+      .section-heading h2 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+      .updated, .remote-protocol, .queue-count, .history-count { color: var(--quiet); font: 400 9px/1.3 "DM Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+
+      .now-head { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: 30px; align-items: start; }
+      .screen-frame { position: relative; margin: 0; aspect-ratio: 16/9; overflow: hidden; border: 1px solid var(--line-strong); background: linear-gradient(135deg, #1c1c1c, #0e0e0e); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+      .screen-frame .ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--quiet); font: 500 30px/1 "DM Mono", monospace; letter-spacing: 0.1em; opacity: 0.5; }
+      .live-bug { position: absolute; left: 12px; top: 12px; padding: 6px 9px; background: var(--accent); color: var(--accent-ink); font: 700 9px/1 "DM Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+      .live-bug::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-ink); }
+      .eyebrow { margin: 0; color: var(--accent); font: 700 9px/1.2 "DM Mono", monospace; letter-spacing: 0.16em; text-transform: uppercase; }
+      .now-copy h3 { margin: 12px 0 0; font-size: clamp(24px, 2.4vw, 38px); line-height: 1.05; font-weight: 700; letter-spacing: -0.03em; }
+      .video-id { margin-top: 14px; color: var(--quiet); font: 400 10px/1.6 "DM Mono", monospace; }
+
+      .timecode { display: flex; align-items: baseline; gap: 8px; margin-top: 30px; font: 500 clamp(24px,2.2vw,34px)/1 "DM Mono", monospace; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+      .timecode .sep, .timecode .dur { color: var(--quiet); }
+      .broadcast-rail { margin-top: 22px; }
+      .rail-labels { display: flex; justify-content: space-between; color: var(--quiet); font: 400 9px/1 "DM Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+      .rail-track { position: relative; height: 4px; margin-top: 12px; background: var(--surface); border: 1px solid var(--line); }
+      .rail-progress { position: absolute; left: 0; top: 0; height: 100%; width: 22%; background: var(--accent); }
+      .rail-progress::after { content: ""; position: absolute; right: -1px; top: -4px; width: 3px; height: 12px; background: var(--accent); }
+
+      .transport { display: grid; grid-template-columns: repeat(3, minmax(0,128px)); gap: 10px; margin-top: 30px; }
+      .icon-button { height: 56px; display: grid; place-items: center; border: 1px solid var(--line-strong); background: var(--raised); color: var(--ink); cursor: pointer; box-shadow: 0 2px 0 rgba(0,0,0,0.6); transition: transform 120ms var(--ease), border-color 140ms var(--ease); }
+      .icon-button:hover { border-color: var(--accent); }
+      .icon-button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 1px 0 rgba(0,0,0,0.6); }
+      .icon-button svg { width: 18px; height: 18px; fill: currentColor; }
+      .play-button { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+
+      .level-strip { display: grid; gap: 12px; margin-top: auto; padding-top: 30px; }
+      .level-strip label { color: var(--muted); font: 700 10px/1 "Manrope"; letter-spacing: 0.08em; text-transform: uppercase; }
+      .level-strip output { margin-left: 8px; color: var(--accent); font-family: "DM Mono", monospace; }
+      input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+      .app-launcher { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+      .app-button { min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 700; box-shadow: 0 2px 0 rgba(0,0,0,0.6); transition: transform 120ms var(--ease), border-color 140ms var(--ease), color 140ms var(--ease); }
+      .app-button:hover { border-color: var(--accent); color: var(--ink); }
+      .app-button:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.6); }
+      .app-tag { display: inline-grid; place-items: center; min-width: 24px; padding: 3px 5px; background: var(--accent); color: var(--accent-ink); font: 800 8px/1 "DM Mono", monospace; }
+
+      .rescan-button { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 0 12px; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; font: 700 9px/1 "Manrope"; letter-spacing: 0.06em; text-transform: uppercase; }
+      .rescan-button:hover { border-color: var(--accent); color: var(--accent); }
+      .rescan-button svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .remote-head-meta { display: flex; align-items: center; gap: 14px; }
+
+      .remote-shortcuts { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 8px; }
+      .remote-button { min-height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; box-shadow: 0 2px 0 rgba(0,0,0,0.6); transition: transform 120ms var(--ease), border-color 140ms var(--ease), color 140ms var(--ease); }
+      .remote-button:hover { border-color: var(--accent); color: var(--ink); }
+      .remote-button:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.6); }
+      .remote-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .remote-button.wake { color: var(--accent); }
+      .remote-button.power-off { color: #ff6b6b; }
+
+      .remote-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; margin-top: 36px; }
+      .dpad { width: min(200px, 100%); aspect-ratio: 1; display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); gap: 8px; margin-inline: auto; }
+      .dpad button { display: grid; place-items: center; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; font: 400 20px/1 "DM Mono", monospace; box-shadow: 0 2px 0 rgba(0,0,0,0.6); transition: transform 100ms var(--ease), border-color 140ms var(--ease); }
+      .dpad button:hover { border-color: var(--accent); }
+      .dpad button:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.6); }
+      .dpad button:nth-child(1){grid-area:1/2}.dpad button:nth-child(2){grid-area:2/1}.dpad button:nth-child(3){grid-area:2/2}.dpad button:nth-child(4){grid-area:2/3}.dpad button:nth-child(5){grid-area:3/2}
+      .dpad-enter { border-color: var(--accent) !important; color: var(--accent) !important; font-size: 11px !important; font-weight: 700 !important; box-shadow: 0 0 0 3px var(--accent-dim), 0 2px 0 rgba(0,0,0,0.6) !important; }
+      .remote-rockers { display: grid; gap: 10px; align-content: start; }
+      .rocker { display: grid; grid-template-columns: minmax(0,1fr) 48px 48px 48px; gap: 8px; }
+      .rocker button { min-height: 48px; display: grid; place-items: center; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; font: 400 18px/1 "DM Mono", monospace; box-shadow: 0 2px 0 rgba(0,0,0,0.6); transition: transform 100ms var(--ease), border-color 140ms var(--ease); }
+      .rocker button:hover { border-color: var(--accent); }
+      .rocker button:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.6); }
+      .rocker-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+      .rocker-label { display: grid; align-items: center; color: var(--quiet); font: 700 10px/1 "DM Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+
+      .queue-section, .history-section { padding: 54px 0; border-top: 1px solid var(--line); }
+      .queue-list, .history-list { margin: 0; padding: 0; list-style: none; }
+      .queue-card, .history-card { display: grid; grid-template-columns: 120px minmax(0,1fr) auto; gap: 18px; align-items: center; padding: 14px; border: 1px solid var(--line); background: var(--surface); margin-bottom: 8px; transition: border-color 140ms var(--ease); }
+      .queue-card:hover, .history-card:hover { border-color: var(--line-strong); }
+      .qthumb { position: relative; aspect-ratio: 16/9; background: linear-gradient(135deg,#242424,#101010); border: 1px solid var(--line); }
+      .qnum { position: absolute; left: 0; bottom: 0; padding: 4px 6px; background: var(--accent); color: var(--accent-ink); font: 500 9px/1 "DM Mono", monospace; }
+      .qmeta strong { display: block; font-size: 13px; font-weight: 600; }
+      .qmeta span { color: var(--quiet); font: 400 8px/1 "DM Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+      .row-action { min-height: 40px; padding: 0 16px; border: 1px solid var(--line-strong); background: var(--raised); color: var(--muted); cursor: pointer; font: 700 10px/1 "Manrope"; letter-spacing: 0.08em; text-transform: uppercase; }
+      .row-action:hover { border-color: var(--accent); color: var(--accent); }
+
+      @media (max-width: 1080px){ .console{grid-template-columns:1fr} .now-playing{padding-right:0;padding-bottom:44px;border-bottom:1px solid var(--line)} .console-side{padding-left:0;padding-top:44px;border-left:0} }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span><h1>TubeLounge</h1></div>
+      <div class="topbar-right">
+        <div class="signal-stack">
+          <div class="signal"><span class="signal-led"></span> YouTube synced</div>
+          <div class="signal"><span class="signal-led"></span> Remote ready</div>
+        </div>
+        <button class="settings-toggle" aria-label="TV setup">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="url-dock">
+        <form onsubmit="return false">
+          <input type="url" placeholder="Paste a YouTube URL…">
+          <button class="button secondary" type="submit">Play now</button>
+          <button class="button primary" type="submit">Add to queue</button>
+        </form>
+      </section>
+
+      <section class="console">
+        <div class="now-playing">
+          <header class="section-heading"><h2>Now playing</h2><p class="updated">Updated 05:37 PM</p></header>
+          <div class="now-head">
+            <figure class="screen-frame"><span class="ph">▶</span><figcaption class="live-bug">Live</figcaption></figure>
+            <div class="now-copy">
+              <p class="eyebrow">On air</p>
+              <h3>Lofi Hip Hop Radio — beats to relax and study to</h3>
+              <p class="video-id">youtube.com/watch?v=jfKfPfyJRdk</p>
+            </div>
+          </div>
+          <div class="timecode"><span>00:42</span><span class="sep">/</span><span class="dur">03:18</span></div>
+          <div class="broadcast-rail">
+            <div class="rail-labels"><span>Progress</span><span>2 in queue</span></div>
+            <div class="rail-track"><span class="rail-progress"></span></div>
+          </div>
+          <div class="transport">
+            <button class="icon-button" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm12 1-8 6 8 6z"/></svg></button>
+            <button class="icon-button play-button" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
+            <button class="icon-button" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM6 6l8 6-8 6z"/></svg></button>
+          </div>
+          <div class="level-strip">
+            <label>Volume <output>34</output></label>
+            <input type="range" min="0" max="100" value="34">
+          </div>
+        </div>
+
+        <div class="console-side">
+          <div class="picker-part">
+            <header class="section-heading"><h2>Sources</h2></header>
+            <div class="app-launcher">
+              <button class="app-button"><span class="app-tag">YT</span> YouTube</button>
+              <button class="app-button">Netflix</button>
+              <button class="app-button">Max</button>
+            </div>
+          </div>
+          <div class="remote-part">
+            <header class="section-heading"><h2>Remote</h2>
+              <div class="remote-head-meta"><span class="remote-protocol">Tizen · 8002</span>
+                <button class="rescan-button"><svg viewBox="0 0 24 24"><path d="M4 9a8 8 0 0 1 13.7-4.2L20 7"/><path d="M20 3v4h-4"/><path d="M20 15a8 8 0 0 1-13.7 4.2L4 17"/><path d="M4 21v-4h4"/></svg><span>Rescan</span></button>
+              </div>
+            </header>
+            <div class="remote-shortcuts">
+              <button class="remote-button wake"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg><span>Wake</span></button>
+              <button class="remote-button"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h4v-5h4v5h4v-8.5"/></svg><span>Home</span></button>
+              <button class="remote-button"><svg viewBox="0 0 24 24"><path d="M10 8 6 12l4 4"/><path d="M6 12h9a4 4 0 0 1 0 8"/></svg><span>Back</span></button>
+              <button class="remote-button"><svg viewBox="0 0 24 24"><path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/></svg><span>Source</span></button>
+              <button class="remote-button power-off"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg><span>Power</span></button>
+            </div>
+            <div class="remote-controls">
+              <div class="dpad">
+                <button>↑</button><button>←</button><button class="dpad-enter">OK</button><button>→</button><button>↓</button>
+              </div>
+              <div class="remote-rockers">
+                <div class="rocker"><span class="rocker-label">Vol</span><button>−</button><button>+</button><button class="rocker-icon"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg></button></div>
+                <div class="rocker"><span class="rocker-label">Ch</span><button>−</button><button>+</button><button class="rocker-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="queue-section">
+        <header class="section-heading"><h2>Queue</h2><span class="queue-count">2 queued</span></header>
+        <ol class="queue-list">
+          <li class="queue-card"><span class="qthumb"><span class="qnum">1</span></span><span class="qmeta"><strong>Weightless — Marconi Union (extended)</strong><span>Up next</span></span><button class="row-action">Remove</button></li>
+          <li class="queue-card"><span class="qthumb"><span class="qnum">2</span></span><span class="qmeta"><strong>Tokyo night drive — 4K ambient</strong><span>Up next</span></span><button class="row-action">Remove</button></li>
+        </ol>
+      </section>
+
+      <section class="history-section">
+        <header class="section-heading"><h2>History</h2><span class="history-count">2 watched</span></header>
+        <ol class="history-list">
+          <li class="history-card"><span class="qthumb"></span><span class="qmeta"><strong>Coffee shop jazz — warm morning blend</strong><span>Play now</span></span><button class="row-action">Next</button></li>
+          <li class="history-card"><span class="qthumb"></span><span class="qmeta"><strong>Rainy window lofi — 3 hour loop</strong><span>Play now</span></span><button class="row-action">Next</button></li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

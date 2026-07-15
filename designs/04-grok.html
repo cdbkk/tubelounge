@@ -1,0 +1,1151 @@
+<!--
+  Intent: Couch/desk operator casting YouTube to a Samsung TV over LAN; feel is a quiet rack-mount control surface used dozens of times a day, not a media app.
+  Domain: on-air, standby, cast beam, Tizen port, source input, queue, tally, dpad, rockers, signal lock.
+  Signature: Studio tally bezel on Now Playing — corner registration marks + red ON-AIR tally lamp on a CRT-style 16:9 frame (broadcast desk, not a video card).
+  Rejecting: (1) soft ghost circular remote keys → solid pressable keycaps with edge highlight; (2) YouTube-red / neon dashboard chrome → charcoal rack panels, single tally accent; (3) floating SaaS cards + heavy shadows → border-led layered surfaces a few % lightness apart.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TubeLounge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --void: #0b0c0e;
+  --rack: #12141a;
+  --rack-lift: #171a21;
+  --bezel: #1c2029;
+  --keycap: #242933;
+  --keycap-edge: #2e3440;
+  --keycap-press: #1a1e26;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.12);
+  --ink: #e8eaef;
+  --ink-secondary: #b4b9c5;
+  --ink-tertiary: #7e8596;
+  --ink-muted: #555c6b;
+  --tally: #e23d2d;
+  --tally-dim: rgba(226, 61, 45, 0.18);
+  --tally-glow: rgba(226, 61, 45, 0.35);
+  --signal-ok: #3dba7a;
+  --signal-ok-dim: rgba(61, 186, 122, 0.16);
+  --cast-track: #2a2f3a;
+  --cast-fill: #c8cdd8;
+  --focus: #f0f2f7;
+  --radius-panel: 10px;
+  --radius-key: 8px;
+  --font-ui: "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "IBM Plex Sans", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+  --ease: ease-out;
+  --fast: 120ms;
+  --snap: 160ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: dark; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input { font: inherit; color: inherit; }
+button {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+a { color: inherit; }
+
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.app {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+}
+
+/* ── Header ── */
+.mast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--bezel);
+  border: 1px solid var(--line-strong);
+  position: relative;
+  flex-shrink: 0;
+}
+.brand-mark::before {
+  content: "";
+  position: absolute;
+  inset: 7px 6px 7px 8px;
+  border: 2px solid var(--ink-secondary);
+  border-radius: 2px;
+  border-right-width: 4px;
+  border-right-color: var(--tally);
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1;
+}
+.mast-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.signal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 11px 0 9px;
+  border-radius: 999px;
+  background: var(--rack);
+  border: 1px solid var(--line);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.signal-chip .led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal-ok);
+  box-shadow: 0 0 0 3px var(--signal-ok-dim);
+  flex-shrink: 0;
+}
+.btn-gear {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-key);
+  background: var(--keycap);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+  display: grid;
+  place-items: center;
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.btn-gear:hover {
+  background: var(--keycap-edge);
+  color: var(--ink);
+  border-color: rgba(255,255,255,0.18);
+}
+.btn-gear:active {
+  background: var(--keycap-press);
+  transition-duration: 80ms;
+}
+.btn-gear svg { display: block; }
+
+/* ── URL dock ── */
+.dock {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  padding: 12px;
+  background: var(--rack);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  margin-bottom: 18px;
+}
+.dock-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dock-label {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  padding-left: 2px;
+}
+.dock-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: var(--void);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color var(--fast) var(--ease);
+}
+.dock-input::placeholder { color: var(--ink-muted); }
+.dock-input:hover { border-color: rgba(255,255,255,0.18); }
+.dock-input:focus {
+  border-color: rgba(255,255,255,0.28);
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  align-self: end;
+  border: 1px solid transparent;
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease), transform 80ms var(--ease);
+}
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn-secondary {
+  background: var(--keycap);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.btn-secondary:hover {
+  background: var(--keycap-edge);
+  border-color: rgba(255,255,255,0.2);
+}
+.btn-secondary:active { background: var(--keycap-press); }
+.btn-primary {
+  background: var(--tally);
+  border-color: #c93426;
+  color: #fff;
+}
+.btn-primary:hover { background: #ef4a39; border-color: #ef4a39; }
+.btn-primary:active { background: #c43124; }
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--ink-secondary);
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.btn-ghost:hover {
+  background: var(--keycap);
+  color: var(--ink);
+  border-color: rgba(255,255,255,0.16);
+}
+.btn-ghost:active { background: var(--keycap-press); }
+.btn-danger {
+  background: var(--tally-dim);
+  border-color: rgba(226, 61, 45, 0.45);
+  color: #ff8f84;
+}
+.btn-danger:hover {
+  background: rgba(226, 61, 45, 0.28);
+  color: #ffb4ad;
+  border-color: rgba(226, 61, 45, 0.65);
+}
+.btn-danger:active { background: rgba(226, 61, 45, 0.4); }
+
+/* ── Console ── */
+.console {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.panel {
+  background: var(--rack);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: 14px;
+}
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-tertiary);
+}
+.panel-meta {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Now playing — signature tally bezel */
+.air {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tally-frame {
+  position: relative;
+  border-radius: 8px;
+  background: var(--void);
+  border: 1px solid var(--line-strong);
+  padding: 10px;
+}
+.tally-lamp {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 4px;
+  background: var(--tally);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+}
+.tally-lamp::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.95;
+}
+.reg {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--ink-muted);
+  border-style: solid;
+  pointer-events: none;
+  opacity: 0.55;
+  z-index: 1;
+}
+.reg-tl { top: 6px; left: 6px; border-width: 1.5px 0 0 1.5px; }
+.reg-tr { top: 6px; right: 6px; border-width: 1.5px 1.5px 0 0; }
+.reg-bl { bottom: 6px; left: 6px; border-width: 0 0 1.5px 1.5px; }
+.reg-br { bottom: 6px; right: 6px; border-width: 0 1.5px 1.5px 0; }
+.screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  background:
+    linear-gradient(160deg, #1a1f2a 0%, #0e1117 45%, #141820 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+}
+.screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 40%, rgba(80, 100, 140, 0.12), transparent 70%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 3px
+    );
+  pointer-events: none;
+}
+.screen-cast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+  width: min(48%, 160px);
+  aspect-ratio: 16/10;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  background: rgba(255,255,255,0.03);
+}
+.screen-cast::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+  width: 36%;
+  height: 10px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top: none;
+  border-radius: 0 0 2px 2px;
+}
+.air-copy { position: relative; z-index: 1; }
+.eyebrow {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tally);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.air-title {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 6px;
+  max-width: 28ch;
+}
+.air-id {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-tertiary);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.transport-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.time-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.timecode {
+  font-family: var(--font-data);
+  font-size: 28px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  line-height: 1;
+}
+.timecode span {
+  color: var(--ink-muted);
+  font-size: 16px;
+  font-weight: 400;
+}
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cast-track);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.progress > i {
+  display: block;
+  height: 100%;
+  width: 22%;
+  background: linear-gradient(90deg, var(--cast-fill), #fff);
+  border-radius: inherit;
+}
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.key {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-key);
+  background: var(--keycap);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease), transform 80ms var(--ease);
+}
+.key:hover {
+  background: var(--keycap-edge);
+  border-color: rgba(255,255,255,0.2);
+}
+.key:active {
+  background: var(--keycap-press);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
+  transform: translateY(1px);
+}
+.key-lg {
+  width: 52px;
+  height: 44px;
+  background: var(--bezel);
+  border-color: rgba(255,255,255,0.16);
+}
+.key-lg:hover { background: var(--keycap-edge); }
+.volume {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.volume-label {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+.volume-val {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cast-fill) 34%, var(--cast-track) 34%);
+  border: 1px solid var(--line);
+  outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--void);
+  cursor: pointer;
+  transition: transform 80ms var(--ease);
+}
+.slider::-webkit-slider-thumb:hover { transform: scale(1.08); }
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--void);
+  cursor: pointer;
+}
+.slider:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Sources + Remote */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+.sources {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.source {
+  height: 56px;
+  border-radius: var(--radius-key);
+  background: var(--keycap);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease), transform 80ms var(--ease);
+}
+.source:hover {
+  background: var(--keycap-edge);
+  color: var(--ink);
+  border-color: rgba(255,255,255,0.18);
+}
+.source:active {
+  background: var(--keycap-press);
+  transform: translateY(1px);
+}
+.source.is-active {
+  border-color: rgba(226, 61, 45, 0.55);
+  background: var(--tally-dim);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--tally-glow);
+}
+.source-tag {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.source.is-active .source-tag { color: #ff8f84; }
+.source-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.remote-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+.remote-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.shortcut {
+  height: 40px;
+  border-radius: 7px;
+  background: var(--keycap);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), color var(--fast) var(--ease), transform 80ms var(--ease);
+}
+.shortcut:hover {
+  background: var(--keycap-edge);
+  color: var(--ink);
+  border-color: rgba(255,255,255,0.18);
+}
+.shortcut:active {
+  background: var(--keycap-press);
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(0,0,0,0.3);
+}
+.shortcut.power {
+  background: var(--tally-dim);
+  border-color: rgba(226, 61, 45, 0.4);
+  color: #ff9a90;
+}
+.shortcut.power:hover {
+  background: rgba(226, 61, 45, 0.3);
+  color: #ffc2bc;
+  border-color: rgba(226, 61, 45, 0.6);
+}
+.shortcut.power:active { background: rgba(226, 61, 45, 0.42); }
+
+.pad-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+.rocker-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rocker {
+  height: 40px;
+  border-radius: 7px;
+  background: var(--keycap);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), transform 80ms var(--ease);
+}
+.rocker:hover {
+  background: var(--keycap-edge);
+  border-color: rgba(255,255,255,0.18);
+}
+.rocker:active {
+  background: var(--keycap-press);
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(0,0,0,0.3);
+}
+.rocker.mute, .rocker.pp {
+  color: var(--ink-secondary);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dpad {
+  width: 168px;
+  height: 168px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 5px;
+  margin: 0 auto;
+}
+.dpad-btn {
+  border-radius: 8px;
+  background: var(--keycap);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease), transform 80ms var(--ease);
+}
+.dpad-btn:hover {
+  background: var(--keycap-edge);
+  border-color: rgba(255,255,255,0.22);
+}
+.dpad-btn:active {
+  background: var(--keycap-press);
+  transform: scale(0.97);
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.4);
+}
+.dpad-btn.up { grid-column: 2; grid-row: 1; }
+.dpad-btn.left { grid-column: 1; grid-row: 2; }
+.dpad-btn.ok {
+  grid-column: 2;
+  grid-row: 2;
+  background: var(--tally);
+  border-color: #c93426;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+.dpad-btn.ok:hover {
+  background: #ef4a39;
+  border-color: #ef4a39;
+}
+.dpad-btn.ok:active {
+  background: #c43124;
+  transform: scale(0.97);
+}
+.dpad-btn.right { grid-column: 3; grid-row: 2; }
+.dpad-btn.down { grid-column: 2; grid-row: 3; }
+.dpad-ghost {
+  visibility: hidden;
+  pointer-events: none;
+}
+.chev { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Lists */
+.section {
+  margin-bottom: 18px;
+}
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+.section-count {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card {
+  display: grid;
+  grid-template-columns: 88px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 10px;
+  background: var(--rack);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.card:hover {
+  border-color: var(--line-strong);
+  background: var(--rack-lift);
+}
+.thumb {
+  width: 88px;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, #252a36 0%, #151820 60%, #1c2230 100%);
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.06), transparent 50%);
+}
+.card-body { min-width: 0; }
+.card-kicker {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 3px;
+}
+.queue .card-kicker { color: var(--tally); }
+.card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .console { grid-template-columns: 1fr; }
+  .pad-row { grid-template-columns: 1fr; justify-items: center; }
+  .rocker-col {
+    flex-direction: row;
+    width: 100%;
+  }
+  .rocker { flex: 1; }
+}
+@media (max-width: 640px) {
+  .app { padding: 14px 12px 36px; }
+  .mast { flex-wrap: wrap; }
+  .dock {
+    grid-template-columns: 1fr;
+  }
+  .btn { width: 100%; align-self: stretch; }
+  .shortcuts { grid-template-columns: repeat(3, 1fr); }
+  .shortcut:nth-child(4), .shortcut:nth-child(5) { grid-column: span 1; }
+  .sources { grid-template-columns: 1fr; }
+  .card {
+    grid-template-columns: 72px 1fr;
+    grid-template-rows: auto auto;
+  }
+  .thumb { width: 72px; }
+  .card-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+  .timecode { font-size: 22px; }
+  .signal-chip { font-size: 11px; height: 30px; }
+}
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="mast">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <span class="brand-name">TubeLounge</span>
+      </div>
+      <div class="mast-right">
+        <span class="signal-chip" role="status">
+          <span class="led" aria-hidden="true"></span>
+          YouTube synced
+        </span>
+        <span class="signal-chip" role="status">
+          <span class="led" aria-hidden="true"></span>
+          Remote ready
+        </span>
+        <button type="button" class="btn-gear" aria-label="TV setup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="dock" aria-label="Cast URL">
+      <div class="dock-field">
+        <label class="dock-label" for="yt-url">YouTube URL</label>
+        <input
+          id="yt-url"
+          class="dock-input"
+          type="url"
+          inputmode="url"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="https://youtube.com/watch?v=…"
+          value="https://youtube.com/watch?v=jfKfPfyJRdk"
+        >
+      </div>
+      <button type="button" class="btn btn-secondary">Play now</button>
+      <button type="button" class="btn btn-primary">Add to queue</button>
+    </section>
+
+    <div class="console">
+      <section class="panel air" aria-label="Now playing">
+        <div class="panel-head">
+          <h2 class="panel-title">Now playing</h2>
+          <span class="panel-meta">Cast lock</span>
+        </div>
+
+        <div class="tally-frame">
+          <span class="reg reg-tl" aria-hidden="true"></span>
+          <span class="reg reg-tr" aria-hidden="true"></span>
+          <span class="reg reg-bl" aria-hidden="true"></span>
+          <span class="reg reg-br" aria-hidden="true"></span>
+          <span class="tally-lamp">Live</span>
+          <div class="screen" role="img" aria-label="Video preview placeholder">
+            <div class="screen-cast" aria-hidden="true"></div>
+            <div class="air-copy">
+              <div class="eyebrow">On air</div>
+              <h3 class="air-title">Lofi Hip Hop Radio — beats to relax and study to</h3>
+              <div class="air-id">youtube.com/watch?v=jfKfPfyJRdk</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="transport-block">
+          <div class="time-row">
+            <div class="timecode">00:42 <span>/ 03:18</span></div>
+          </div>
+          <div class="progress" role="progressbar" aria-valuenow="22" aria-valuemin="0" aria-valuemax="100" aria-label="Playback progress 22 percent">
+            <i></i>
+          </div>
+          <div class="controls-row">
+            <div class="transport">
+              <button type="button" class="key" aria-label="Previous">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+              </button>
+              <button type="button" class="key key-lg" aria-label="Pause">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+              </button>
+              <button type="button" class="key" aria-label="Next">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+              </button>
+            </div>
+            <div class="volume">
+              <span class="volume-label">Vol</span>
+              <input class="slider" type="range" min="0" max="100" value="34" aria-label="Volume">
+              <span class="volume-val">34</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="panel" aria-label="Sources">
+          <div class="panel-head">
+            <h2 class="panel-title">Sources</h2>
+            <span class="panel-meta">Input select</span>
+          </div>
+          <div class="sources">
+            <button type="button" class="source is-active" aria-pressed="true">
+              <span class="source-tag">YT</span>
+              <span class="source-name">YouTube</span>
+            </button>
+            <button type="button" class="source" aria-pressed="false">
+              <span class="source-tag">App</span>
+              <span class="source-name">Netflix</span>
+            </button>
+            <button type="button" class="source" aria-pressed="false">
+              <span class="source-tag">App</span>
+              <span class="source-name">Max</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Remote">
+          <div class="remote-head">
+            <h2 class="panel-title">Remote</h2>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="panel-meta">Tizen · 8002</span>
+              <button type="button" class="btn btn-ghost">Rescan</button>
+            </div>
+          </div>
+
+          <div class="remote-block">
+            <div class="shortcuts" role="group" aria-label="Shortcuts">
+              <button type="button" class="shortcut">Wake</button>
+              <button type="button" class="shortcut">Home</button>
+              <button type="button" class="shortcut">Back</button>
+              <button type="button" class="shortcut">Source</button>
+              <button type="button" class="shortcut power">Power</button>
+            </div>
+
+            <div class="pad-row">
+              <div class="rocker-col" role="group" aria-label="Volume rocker">
+                <button type="button" class="rocker" aria-label="Volume down">Vol −</button>
+                <button type="button" class="rocker" aria-label="Volume up">Vol +</button>
+                <button type="button" class="rocker mute" aria-label="Mute">Mute</button>
+              </div>
+
+              <div class="dpad" role="group" aria-label="Directional pad">
+                <span class="dpad-ghost"></span>
+                <button type="button" class="dpad-btn up" aria-label="Up">
+                  <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>
+                </button>
+                <span class="dpad-ghost"></span>
+                <button type="button" class="dpad-btn left" aria-label="Left">
+                  <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6l-6 6 6 6"/></svg>
+                </button>
+                <button type="button" class="dpad-btn ok" aria-label="OK">OK</button>
+                <button type="button" class="dpad-btn right" aria-label="Right">
+                  <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6l6 6-6 6"/></svg>
+                </button>
+                <span class="dpad-ghost"></span>
+                <button type="button" class="dpad-btn down" aria-label="Down">
+                  <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10l6 6 6-6"/></svg>
+                </button>
+                <span class="dpad-ghost"></span>
+              </div>
+
+              <div class="rocker-col" role="group" aria-label="Channel and playback rocker">
+                <button type="button" class="rocker" aria-label="Channel down">Ch −</button>
+                <button type="button" class="rocker" aria-label="Channel up">Ch +</button>
+                <button type="button" class="rocker pp" aria-label="Play pause">▶︎❚❚</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section class="section queue" aria-label="Queue">
+      <div class="section-head">
+        <h2 class="section-title">Queue</h2>
+        <span class="section-count">2 in standby</span>
+      </div>
+      <div class="list">
+        <article class="card">
+          <div class="thumb" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-kicker">Up next</div>
+            <h3 class="card-title">Weightless — Marconi Union (extended)</h3>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-ghost btn-danger">Remove</button>
+          </div>
+        </article>
+        <article class="card">
+          <div class="thumb" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-kicker">Up next</div>
+            <h3 class="card-title">Tokyo night drive — 4K ambient</h3>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-ghost btn-danger">Remove</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section history" aria-label="History">
+      <div class="section-head">
+        <h2 class="section-title">History</h2>
+        <span class="section-count">Recent casts</span>
+      </div>
+      <div class="list">
+        <article class="card">
+          <div class="thumb" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-kicker">Played</div>
+            <h3 class="card-title">Coffee shop jazz — warm morning blend</h3>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-ghost">Play now</button>
+            <button type="button" class="btn btn-secondary" style="height:32px;padding:0 12px;font-size:12px;">Next</button>
+          </div>
+        </article>
+        <article class="card">
+          <div class="thumb" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-kicker">Played</div>
+            <h3 class="card-title">Rainy window lofi — 3 hour loop</h3>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-ghost">Play now</button>
+            <button type="button" class="btn btn-secondary" style="height:32px;padding:0 12px;font-size:12px;">Next</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

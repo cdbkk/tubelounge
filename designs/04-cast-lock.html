@@ -1,0 +1,1603 @@
+<!--
+  Intent: Couch/desk operator casting YouTube to a Samsung TV many times a day. Paste → play/queue → nudge remote. Feel: late-night AV rack — calm, tactile, always-ready control surface (not entertainment UI, not marketing).
+  Domain: on-air, standby, signal lock, cast path (browser→Wi-Fi→Tizen), source input, broadcast rail/timecode, remote faceplate, queue stack.
+  Signature: Cast-lock bridge — the two signal chips join with a continuous phosphor rail when YouTube sync + Remote ready are both locked; the URL dock sits on that same cast path (device → feeder → TV).
+  Rejecting: (1) soft rounded “smart remote” glass buttons → hard faceplate keycaps with top-light bevels that read pressable; (2) cool gray Inter/Manrope media dashboard → warm cabinet blacks + IBM Plex engineering type; (3) equal-weight card grid → cast feeder + screen dominate, remote densifies like hardware.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c0b09">
+  <title>TubeLounge</title>
+  <link rel="icon" href="data:,">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+
+    :root {
+      color-scheme: dark;
+
+      /* Cabinet surfaces — warm AV rack blacks, few % apart */
+      --cabinet: #0c0b09;
+      --plinth: #12110e;
+      --bezel: #181714;
+      --faceplate: #1e1c18;
+      --inset: #0a0908;
+
+      /* Rails / edges */
+      --seam: rgba(232, 228, 217, 0.06);
+      --seam-mid: rgba(232, 228, 217, 0.10);
+      --seam-hard: rgba(232, 228, 217, 0.16);
+      --seam-focus: rgba(232, 168, 48, 0.55);
+
+      /* Phosphor type hierarchy */
+      --phosphor: #e8e4d9;       /* primary */
+      --readout: #b8b3a6;        /* secondary */
+      --label-ink: #8a8578;      /* tertiary */
+      --ghost: #5c584e;          /* muted */
+
+      /* One product accent: standby amber lamp */
+      --lamp: #e8a830;
+      --lamp-ink: #140f04;
+      --lamp-dim: rgba(232, 168, 48, 0.14);
+      --lamp-glow: rgba(232, 168, 48, 0.28);
+
+      /* Semantic only */
+      --cutoff: #d16b5a;
+      --cutoff-ink: #1a0907;
+      --cutoff-dim: rgba(209, 107, 90, 0.12);
+
+      --ease: ease-out;
+      --tap: 120ms;
+      --press: 90ms;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-7: 48px;
+      --radius-key: 3px;
+      --radius-panel: 4px;
+      --content: 1440px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { background: var(--cabinet); }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--cabinet);
+      color: var(--phosphor);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, input {
+      font-family: inherit;
+    }
+
+    button {
+      appearance: none;
+      -webkit-appearance: none;
+      margin: 0;
+      color: inherit;
+    }
+
+    a { color: inherit; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Shared focus — always visible */
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--lamp);
+      outline-offset: 2px;
+    }
+
+    /* ─── Shell ─── */
+    .shell {
+      width: min(var(--content), calc(100% - 48px));
+      margin-inline: auto;
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: calc(100% - 24px); }
+    }
+
+    /* ─── Header / cast-lock ─── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-5);
+      min-height: 72px;
+      padding-block: var(--space-4);
+      border-bottom: 1px solid var(--seam);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      background: var(--lamp);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1px solid var(--lamp-ink);
+      opacity: 0.55;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      min-width: 0;
+    }
+
+    /* Signature: cast-lock bridge */
+    .cast-lock {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: 0;
+    }
+
+    .signal {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      background: var(--plinth);
+      border: 1px solid var(--seam-mid);
+      color: var(--readout);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .signal[data-state="ok"] {
+      color: var(--phosphor);
+    }
+
+    .signal-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--ghost);
+    }
+
+    .signal[data-state="ok"] .signal-led {
+      background: var(--lamp);
+      box-shadow: 0 0 0 3px var(--lamp-dim);
+    }
+
+    /* Bridge rail between the two locks */
+    .cast-bridge {
+      position: relative;
+      width: 28px;
+      height: 1px;
+      background: var(--seam-hard);
+      flex-shrink: 0;
+    }
+
+    .cast-bridge::before,
+    .cast-bridge::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--lamp);
+      transform: translateY(-50%);
+      box-shadow: 0 0 0 2px var(--lamp-dim);
+    }
+
+    .cast-bridge::before { left: -1px; }
+    .cast-bridge::after { right: -1px; }
+
+    .cast-bridge[data-locked="true"] {
+      background: linear-gradient(90deg, var(--lamp), var(--lamp-glow), var(--lamp));
+      height: 2px;
+    }
+
+    .settings-toggle {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease);
+    }
+
+    .settings-toggle:hover {
+      border-color: var(--phosphor);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .settings-toggle:active {
+      background: var(--plinth);
+      transform: translateY(1px);
+      transition-duration: var(--press);
+    }
+
+    .settings-toggle svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ─── URL / cast feeder ─── */
+    .url-dock {
+      padding: var(--space-5) 0;
+      border-bottom: 1px solid var(--seam);
+    }
+
+    .cast-path-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-bottom: 10px;
+    }
+
+    .cast-path-meta span {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label-ink);
+    }
+
+    .cast-path-meta .path-live {
+      color: var(--lamp);
+    }
+
+    .url-dock form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 0;
+      border: 1px solid var(--seam-hard);
+      background: var(--plinth);
+      border-radius: var(--radius-panel);
+      overflow: hidden;
+    }
+
+    .url-dock form:focus-within {
+      border-color: rgba(232, 168, 48, 0.45);
+    }
+
+    input[type="url"] {
+      min-width: 0;
+      height: 52px;
+      padding: 0 16px;
+      border: 0;
+      border-right: 1px solid var(--seam-mid);
+      background: var(--inset);
+      color: var(--phosphor);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+    }
+
+    input[type="url"]::placeholder {
+      color: var(--ghost);
+    }
+
+    input[type="url"]:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 1px var(--lamp);
+    }
+
+    .button {
+      min-height: 52px;
+      padding: 0 20px;
+      border: 0;
+      border-left: 1px solid var(--seam-mid);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition:
+        background-color var(--tap) var(--ease),
+        color var(--tap) var(--ease);
+    }
+
+    .button.secondary {
+      color: var(--phosphor);
+    }
+
+    .button.secondary:hover {
+      background: var(--bezel);
+      color: var(--phosphor);
+    }
+
+    .button.primary {
+      background: var(--lamp);
+      color: var(--lamp-ink);
+      border-left-color: transparent;
+    }
+
+    .button.primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .button:active {
+      transform: translateY(1px);
+      transition-duration: var(--press);
+    }
+
+    .button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ─── Console ─── */
+    .console {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+      gap: 0;
+      padding: var(--space-7) 0;
+    }
+
+    .now-playing {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding-right: var(--space-7);
+    }
+
+    .console-side {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding-left: var(--space-7);
+      border-left: 1px solid var(--seam);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--phosphor);
+    }
+
+    .updated,
+    .remote-protocol,
+    .queue-count,
+    .history-count {
+      margin: 0;
+      color: var(--ghost);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Screen + copy */
+    .now-head {
+      display: grid;
+      grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+      gap: var(--space-5);
+      align-items: start;
+    }
+
+    .screen-frame {
+      position: relative;
+      margin: 0;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid var(--seam-hard);
+      border-radius: 2px;
+      background:
+        linear-gradient(160deg, #1a1814 0%, #0e0d0b 55%, #12100c 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,0.4),
+        inset 0 0 40px rgba(0,0,0,0.35);
+    }
+
+    /* Soft CRT vignette via CSS only */
+    .screen-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 40% 35%, rgba(232,168,48,0.08), transparent 55%),
+        linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.35));
+      pointer-events: none;
+    }
+
+    .screen-frame .ph {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--ghost);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 22px;
+      letter-spacing: 0.2em;
+      opacity: 0.55;
+    }
+
+    .live-bug {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      background: var(--lamp);
+      color: var(--lamp-ink);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .live-bug::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--lamp-ink);
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--lamp);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .now-copy h3 {
+      margin: 10px 0 0;
+      font-size: clamp(22px, 2.4vw, 34px);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--phosphor);
+    }
+
+    .video-id {
+      margin: 12px 0 0;
+      color: var(--ghost);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+      word-break: break-all;
+    }
+
+    .timecode {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-top: var(--space-6);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: clamp(28px, 2.6vw, 40px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      color: var(--phosphor);
+    }
+
+    .timecode .sep,
+    .timecode .dur {
+      color: var(--ghost);
+    }
+
+    .broadcast-rail {
+      margin-top: var(--space-4);
+    }
+
+    .rail-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--ghost);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .rail-track {
+      position: relative;
+      height: 3px;
+      margin-top: 10px;
+      background: var(--seam-hard);
+      border-radius: 1px;
+    }
+
+    .rail-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 22%;
+      background: var(--lamp);
+      border-radius: 1px;
+    }
+
+    .rail-progress::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -4px;
+      width: 2px;
+      height: 11px;
+      background: var(--phosphor);
+    }
+
+    .transport {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 120px));
+      gap: 8px;
+      margin-top: var(--space-5);
+    }
+
+    .icon-button {
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      /* Keycap top-light */
+      box-shadow:
+        inset 0 1px 0 rgba(232, 228, 217, 0.08),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease),
+        box-shadow var(--tap) var(--ease);
+    }
+
+    .icon-button:hover {
+      border-color: rgba(232, 228, 217, 0.28);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .icon-button:active {
+      background: var(--plinth);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+      transform: translateY(1px);
+      transition-duration: var(--press);
+    }
+
+    .icon-button svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .play-button {
+      border-color: rgba(232, 168, 48, 0.45);
+      background: var(--lamp);
+      color: var(--lamp-ink);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .play-button:hover {
+      filter: brightness(1.06);
+      border-color: var(--lamp);
+      color: var(--lamp-ink);
+      background: var(--lamp);
+    }
+
+    .play-button:active {
+      filter: brightness(0.96);
+      background: var(--lamp);
+    }
+
+    .level-strip {
+      display: grid;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: var(--space-6);
+    }
+
+    .level-strip label {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      color: var(--label-ink);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .level-strip output {
+      color: var(--phosphor);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      background: var(--seam-hard);
+      border-radius: 1px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--phosphor);
+      border: 1px solid var(--cabinet);
+      box-shadow: 0 0 0 1px var(--seam-hard);
+      transition: background-color var(--tap) var(--ease);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--phosphor);
+      border: 1px solid var(--cabinet);
+    }
+
+    input[type="range"]:hover::-webkit-slider-thumb {
+      background: var(--lamp);
+    }
+
+    input[type="range"]:focus-visible {
+      outline: 2px solid var(--lamp);
+      outline-offset: 4px;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 3px;
+      background: linear-gradient(90deg, var(--lamp) 0%, var(--lamp) 34%, var(--seam-hard) 34%);
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 3px;
+      background: var(--seam-hard);
+    }
+
+    input[type="range"]::-moz-range-progress {
+      height: 3px;
+      background: var(--lamp);
+    }
+
+    /* ─── Sources ─── */
+    .picker-part { min-width: 0; }
+
+    .app-launcher {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .app-button {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow:
+        inset 0 1px 0 rgba(232, 228, 217, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease);
+    }
+
+    .app-button:hover {
+      border-color: rgba(232, 228, 217, 0.28);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .app-button:active {
+      background: var(--plinth);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.45);
+      transform: translateY(1px);
+      transition-duration: var(--press);
+    }
+
+    .app-button.is-active,
+    .app-button.youtube {
+      border-color: rgba(232, 168, 48, 0.4);
+      color: var(--phosphor);
+      background: var(--lamp-dim);
+    }
+
+    .app-button.is-active:hover,
+    .app-button.youtube:hover {
+      border-color: var(--lamp);
+      background: rgba(232, 168, 48, 0.2);
+      color: var(--phosphor);
+    }
+
+    .app-tag {
+      display: inline-grid;
+      place-items: center;
+      min-width: 22px;
+      height: 18px;
+      padding: 0 4px;
+      border: 1px solid currentColor;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── Remote faceplate ─── */
+    .remote-part {
+      margin-top: var(--space-6);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--seam);
+    }
+
+    .remote-head-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .rescan-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: inset 0 1px 0 rgba(232, 228, 217, 0.06);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease);
+    }
+
+    .rescan-button:hover {
+      border-color: rgba(232, 228, 217, 0.28);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .rescan-button:active {
+      transform: translateY(1px);
+      transition-duration: var(--press);
+    }
+
+    .rescan-button svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .remote-face {
+      padding: var(--space-4);
+      border: 1px solid var(--seam-mid);
+      border-radius: var(--radius-panel);
+      background: var(--plinth);
+    }
+
+    .remote-shortcuts {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .remote-button {
+      min-height: 62px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 4px;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow:
+        inset 0 1px 0 rgba(232, 228, 217, 0.1),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(0, 0, 0, 0.25);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease),
+        box-shadow var(--tap) var(--ease);
+    }
+
+    .remote-button:hover {
+      border-color: rgba(232, 228, 217, 0.3);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .remote-button:active {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 2px 3px rgba(0, 0, 0, 0.45),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+      background: var(--inset);
+      transition-duration: var(--press);
+    }
+
+    .remote-button svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .remote-button.wake {
+      color: var(--phosphor);
+      border-color: rgba(232, 228, 217, 0.22);
+    }
+
+    .remote-button.power-off {
+      color: var(--cutoff);
+      border-color: rgba(209, 107, 90, 0.35);
+      background: var(--cutoff-dim);
+    }
+
+    .remote-button.power-off:hover {
+      background: var(--cutoff);
+      border-color: var(--cutoff);
+      color: var(--cutoff-ink);
+    }
+
+    .remote-button.power-off:active {
+      background: #b85a4b;
+      color: var(--cutoff-ink);
+    }
+
+    .remote-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+      align-items: center;
+      margin-top: var(--space-5);
+      padding-top: var(--space-5);
+      border-top: 1px solid var(--seam);
+    }
+
+    .dpad {
+      width: min(188px, 100%);
+      aspect-ratio: 1;
+      display: grid;
+      grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+      gap: 6px;
+      margin-inline: auto;
+    }
+
+    .dpad button {
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 16px;
+      font-weight: 400;
+      box-shadow:
+        inset 0 1px 0 rgba(232, 228, 217, 0.1),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(0, 0, 0, 0.2);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease),
+        box-shadow var(--tap) var(--ease);
+    }
+
+    .dpad button:nth-child(1) { grid-area: 1 / 2; }
+    .dpad button:nth-child(2) { grid-area: 2 / 1; }
+    .dpad button:nth-child(3) { grid-area: 2 / 2; }
+    .dpad button:nth-child(4) { grid-area: 2 / 3; }
+    .dpad button:nth-child(5) { grid-area: 3 / 2; }
+
+    .dpad button:hover {
+      border-color: rgba(232, 228, 217, 0.3);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .dpad button:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.5);
+      background: var(--inset);
+      transition-duration: var(--press);
+    }
+
+    .dpad-enter {
+      border-color: rgba(232, 168, 48, 0.5) !important;
+      background: var(--lamp) !important;
+      color: var(--lamp-ink) !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.06em;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+        0 1px 0 rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .dpad-enter:hover {
+      filter: brightness(1.06);
+      background: var(--lamp) !important;
+      color: var(--lamp-ink) !important;
+    }
+
+    .dpad-enter:active {
+      filter: brightness(0.95);
+      background: var(--lamp) !important;
+    }
+
+    .remote-rockers {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .rocker {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) 44px;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .rocker-label {
+      display: grid;
+      place-items: center start;
+      color: var(--ghost);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .rocker button {
+      min-height: 44px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 16px;
+      box-shadow:
+        inset 0 1px 0 rgba(232, 228, 217, 0.1),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease),
+        box-shadow var(--tap) var(--ease);
+    }
+
+    .rocker button:hover {
+      border-color: rgba(232, 228, 217, 0.3);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .rocker button:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.5);
+      background: var(--inset);
+      transition-duration: var(--press);
+    }
+
+    .rocker-icon svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ─── Queue / History ─── */
+    .queue-section,
+    .history-section {
+      padding: var(--space-7) 0;
+      border-top: 1px solid var(--seam);
+    }
+
+    .history-section {
+      padding-bottom: 72px;
+    }
+
+    .queue-list,
+    .history-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .queue-card,
+    .history-card {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr) auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: 14px 0;
+      border-top: 1px solid var(--seam);
+    }
+
+    .queue-card:last-child,
+    .history-card:last-child {
+      border-bottom: 1px solid var(--seam);
+    }
+
+    .qthumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--seam-mid);
+      background:
+        linear-gradient(145deg, #1a1814, #0e0d0b);
+      overflow: hidden;
+    }
+
+    .qthumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 30%, rgba(232,168,48,0.06), transparent 60%);
+      pointer-events: none;
+    }
+
+    .qnum {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      z-index: 1;
+      padding: 4px 6px;
+      background: var(--lamp);
+      color: var(--lamp-ink);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .qmeta {
+      min-width: 0;
+    }
+
+    .qmeta strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--phosphor);
+      letter-spacing: -0.01em;
+    }
+
+    .qmeta span {
+      display: block;
+      margin-top: 4px;
+      color: var(--ghost);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .row-action {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--seam-hard);
+      border-radius: var(--radius-key);
+      background: var(--faceplate);
+      color: var(--readout);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(232, 228, 217, 0.06);
+      transition:
+        background-color var(--tap) var(--ease),
+        border-color var(--tap) var(--ease),
+        color var(--tap) var(--ease);
+    }
+
+    .row-action:hover {
+      border-color: rgba(232, 228, 217, 0.28);
+      color: var(--phosphor);
+      background: var(--bezel);
+    }
+
+    .row-action:active {
+      transform: translateY(1px);
+      background: var(--plinth);
+      transition-duration: var(--press);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1100px) {
+      .console {
+        grid-template-columns: 1fr;
+        padding: var(--space-6) 0;
+      }
+
+      .now-playing {
+        padding-right: 0;
+        padding-bottom: var(--space-6);
+        border-bottom: 1px solid var(--seam);
+      }
+
+      .console-side {
+        padding-left: 0;
+        padding-top: var(--space-6);
+        border-left: 0;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        flex-wrap: wrap;
+        min-height: 0;
+        gap: var(--space-3);
+      }
+
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .cast-lock {
+        flex: 1;
+        min-width: 0;
+        overflow-x: auto;
+      }
+
+      .signal {
+        font-size: 9px;
+        padding: 6px 8px;
+      }
+
+      .cast-bridge { width: 16px; }
+
+      .url-dock form {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      input[type="url"] {
+        grid-column: 1 / -1;
+        border-right: 0;
+        border-bottom: 1px solid var(--seam-mid);
+      }
+
+      .button {
+        border-left: 0;
+      }
+
+      .button.secondary {
+        border-right: 1px solid var(--seam-mid);
+      }
+
+      .now-head {
+        grid-template-columns: 1fr;
+      }
+
+      .screen-frame {
+        max-width: 360px;
+      }
+
+      .transport {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .remote-shortcuts {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .remote-button {
+        min-height: 56px;
+        font-size: 8px;
+      }
+
+      .remote-controls {
+        grid-template-columns: 1fr;
+        gap: var(--space-5);
+      }
+
+      .dpad {
+        width: min(200px, 70vw);
+      }
+
+      .queue-card,
+      .history-card {
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .row-action {
+        grid-column: 2;
+        justify-self: start;
+        margin-top: 4px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .remote-shortcuts {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .remote-button:nth-child(4),
+      .remote-button:nth-child(5) {
+        /* keep all 5; 3+2 wrap naturally */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>TubeLounge</h1>
+      </div>
+
+      <div class="topbar-right">
+        <div class="cast-lock" role="group" aria-label="Cast path signal locks">
+          <div class="signal" data-state="ok" role="status" aria-live="polite">
+            <span class="signal-led" aria-hidden="true"></span>
+            <span>YouTube synced</span>
+          </div>
+          <span class="cast-bridge" data-locked="true" aria-hidden="true" title="Cast path locked"></span>
+          <div class="signal" data-state="ok" role="status" aria-live="polite">
+            <span class="signal-led" aria-hidden="true"></span>
+            <span>Remote ready</span>
+          </div>
+        </div>
+
+        <button class="settings-toggle" type="button" aria-label="TV setup">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="url-dock" aria-labelledby="urlHeading">
+        <div class="cast-path-meta">
+          <span>Cast feeder</span>
+          <span class="path-live">Path locked · Wi-Fi</span>
+        </div>
+        <h2 class="sr-only" id="urlHeading">Send a YouTube URL</h2>
+        <form action="#" method="get" onsubmit="return false">
+          <label class="sr-only" for="videoUrl">YouTube video URL</label>
+          <input id="videoUrl" name="url" type="url" inputmode="url" autocomplete="url" placeholder="Paste a YouTube URL…" value="">
+          <button class="button secondary" type="submit" name="intent" value="play">Play now</button>
+          <button class="button primary" type="submit" name="intent" value="queue">Add to queue</button>
+        </form>
+      </section>
+
+      <section class="console" aria-label="Playback and remote">
+        <div class="now-playing" aria-labelledby="nowHeading">
+          <header class="section-heading">
+            <h2 id="nowHeading">Now playing</h2>
+            <p class="updated">Updated 05:37 PM</p>
+          </header>
+
+          <div class="now-head">
+            <figure class="screen-frame" aria-label="TV screen preview">
+              <span class="ph" aria-hidden="true">▶</span>
+              <figcaption class="live-bug">Live</figcaption>
+            </figure>
+
+            <div class="now-copy">
+              <p class="eyebrow">On air</p>
+              <h3>Lofi Hip Hop Radio — beats to relax and study to</h3>
+              <p class="video-id">youtube.com/watch?v=jfKfPfyJRdk</p>
+            </div>
+          </div>
+
+          <div class="timecode" aria-label="Playback time">
+            <span>00:42</span>
+            <span class="sep">/</span>
+            <span class="dur">03:18</span>
+          </div>
+
+          <div class="broadcast-rail">
+            <div class="rail-labels" aria-hidden="true">
+              <span>Progress</span>
+              <span>2 in queue</span>
+            </div>
+            <div class="rail-track" role="progressbar" aria-valuenow="22" aria-valuemin="0" aria-valuemax="100" aria-label="Playback progress 22 percent">
+              <span class="rail-progress"></span>
+            </div>
+          </div>
+
+          <div class="transport" aria-label="Playback controls">
+            <button class="icon-button" type="button" aria-label="Previous video">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zm12 1-8 6 8 6z"/></svg>
+            </button>
+            <button class="icon-button play-button" type="button" aria-label="Pause">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+            </button>
+            <button class="icon-button" type="button" aria-label="Next video">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM6 6l8 6-8 6z"/></svg>
+            </button>
+          </div>
+
+          <div class="level-strip">
+            <label for="volume">Volume <output id="volumeValue" for="volume">34</output></label>
+            <input id="volume" type="range" min="0" max="100" value="34" step="1" aria-label="TV volume">
+          </div>
+        </div>
+
+        <div class="console-side">
+          <div class="picker-part" aria-labelledby="appHeading">
+            <header class="section-heading">
+              <h2 id="appHeading">Sources</h2>
+            </header>
+            <div class="app-launcher" aria-label="Launch a TV app">
+              <button class="app-button youtube is-active" type="button" data-app="youtube" aria-pressed="true">
+                <span class="app-tag" aria-hidden="true">YT</span> YouTube
+              </button>
+              <button class="app-button" type="button" data-app="netflix" aria-pressed="false">Netflix</button>
+              <button class="app-button" type="button" data-app="max" aria-pressed="false">Max</button>
+            </div>
+          </div>
+
+          <div class="remote-part" aria-labelledby="remoteHeading">
+            <header class="section-heading">
+              <h2 id="remoteHeading">Remote</h2>
+              <div class="remote-head-meta">
+                <span class="remote-protocol">Tizen · 8002</span>
+                <button class="rescan-button" type="button" aria-label="Rescan TV connection">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 9a8 8 0 0 1 13.7-4.2L20 7"/>
+                    <path d="M20 3v4h-4"/>
+                    <path d="M20 15a8 8 0 0 1-13.7 4.2L4 17"/>
+                    <path d="M4 21v-4h4"/>
+                  </svg>
+                  <span>Rescan</span>
+                </button>
+              </div>
+            </header>
+
+            <div class="remote-face">
+              <div class="remote-shortcuts" aria-label="TV shortcuts">
+                <button class="remote-button wake" type="button" aria-label="Wake TV">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg>
+                  <span>Wake</span>
+                </button>
+                <button class="remote-button" type="button" aria-label="Home">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h4v-5h4v5h4v-8.5"/></svg>
+                  <span>Home</span>
+                </button>
+                <button class="remote-button" type="button" aria-label="Back">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 8 6 12l4 4"/><path d="M6 12h9a4 4 0 0 1 0 8"/></svg>
+                  <span>Back</span>
+                </button>
+                <button class="remote-button" type="button" aria-label="Source">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/></svg>
+                  <span>Source</span>
+                </button>
+                <button class="remote-button power-off" type="button" aria-label="Power off">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg>
+                  <span>Power</span>
+                </button>
+              </div>
+
+              <div class="remote-controls">
+                <div class="dpad" aria-label="TV navigation">
+                  <button type="button" aria-label="Up">↑</button>
+                  <button type="button" aria-label="Left">←</button>
+                  <button class="dpad-enter" type="button" aria-label="Select">OK</button>
+                  <button type="button" aria-label="Right">→</button>
+                  <button type="button" aria-label="Down">↓</button>
+                </div>
+
+                <div class="remote-rockers">
+                  <div class="rocker" aria-label="TV volume">
+                    <span class="rocker-label">Vol</span>
+                    <button type="button" aria-label="Volume down">−</button>
+                    <button type="button" aria-label="Volume up">+</button>
+                    <button class="rocker-icon" type="button" aria-label="Mute">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>
+                    </button>
+                  </div>
+                  <div class="rocker" aria-label="TV channel">
+                    <span class="rocker-label">Ch</span>
+                    <button type="button" aria-label="Channel down">−</button>
+                    <button type="button" aria-label="Channel up">+</button>
+                    <button class="rocker-icon" type="button" aria-label="Play or pause">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="queue-section" aria-labelledby="queueHeading">
+        <header class="section-heading">
+          <h2 id="queueHeading">Queue</h2>
+          <span class="queue-count">2 queued</span>
+        </header>
+        <ol class="queue-list">
+          <li class="queue-card">
+            <span class="qthumb" aria-hidden="true"><span class="qnum">1</span></span>
+            <span class="qmeta">
+              <strong>Weightless — Marconi Union (extended)</strong>
+              <span>Up next</span>
+            </span>
+            <button class="row-action" type="button" aria-label="Remove Weightless from queue">Remove</button>
+          </li>
+          <li class="queue-card">
+            <span class="qthumb" aria-hidden="true"><span class="qnum">2</span></span>
+            <span class="qmeta">
+              <strong>Tokyo night drive — 4K ambient</strong>
+              <span>Up next</span>
+            </span>
+            <button class="row-action" type="button" aria-label="Remove Tokyo night drive from queue">Remove</button>
+          </li>
+        </ol>
+      </section>
+
+      <section class="history-section" aria-labelledby="historyHeading">
+        <header class="section-heading">
+          <h2 id="historyHeading">History</h2>
+          <span class="history-count">2 watched</span>
+        </header>
+        <ol class="history-list">
+          <li class="history-card">
+            <span class="qthumb" aria-hidden="true"></span>
+            <span class="qmeta">
+              <strong>Coffee shop jazz — warm morning blend</strong>
+              <span>Play now</span>
+            </span>
+            <button class="row-action" type="button" aria-label="Queue Coffee shop jazz as next">Next</button>
+          </li>
+          <li class="history-card">
+            <span class="qthumb" aria-hidden="true"></span>
+            <span class="qmeta">
+              <strong>Rainy window lofi — 3 hour loop</strong>
+              <span>Play now</span>
+            </span>
+            <button class="row-action" type="button" aria-label="Queue Rainy window lofi as next">Next</button>
+          </li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

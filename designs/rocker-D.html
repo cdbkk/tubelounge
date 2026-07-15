@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TubeLounge — Media Bar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#0d0d0e;
+  --raised-top:#262528;
+  --raised-bot:#1a1a1c;
+  --well:#0a0a0b;
+  --hair:rgba(255,255,255,0.07);
+  --hair-2:rgba(255,255,255,0.12);
+  --sheen:rgba(255,255,255,0.05);
+  --ink:#f4f3f1;
+  --ink-2:#a4a3a0;
+  --ink-3:#6d6c69;
+  --ink-4:#484745;
+  --white-ink:#121213;
+  --live:#f0544c;
+  --ease:cubic-bezier(0.23,1,0.32,1);
+  --key-shadow:0 1px 0 var(--sheen) inset, 0 2px 4px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.45);
+  --key-shadow-down:0 1px 0 var(--sheen) inset, 0 1px 1px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.45);
+
+  /* derived, non-token helpers */
+  --raised-top-h:#2d2c30;
+  --raised-bot-h:#202022;
+  --hero-top:#fbfaf8;
+  --hero-bot:#e7e4df;
+  --hero-top-h:#ffffff;
+  --hero-bot-h:#efece7;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html,body{ height:100%; }
+
+body{
+  background:
+    radial-gradient(1100px 560px at 50% 28%, #131314 0%, var(--bg) 70%),
+    var(--bg);
+  color:var(--ink);
+  font-family:"Space Grotesk", sans-serif;
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+  padding:40px 24px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- cluster plate ---------- */
+
+.deck{
+  width:760px;
+  max-width:100%;
+  padding:60px;
+  border-radius:28px;
+  background:linear-gradient(180deg, #161617 0%, #111112 100%);
+  border:1px solid var(--hair);
+  box-shadow:
+    0 1px 0 var(--sheen) inset,
+    0 24px 60px rgba(0,0,0,0.55),
+    0 2px 8px rgba(0,0,0,0.4);
+}
+
+.deck__head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:22px;
+}
+
+.microlabel{
+  font-family:"DM Mono", monospace;
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.microlabel--dim{ color:var(--ink-4); }
+
+/* ---------- inset well the bar sits in ---------- */
+
+.well{
+  padding:6px;
+  border-radius:38px;
+  background:var(--well);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    0 1px 0 var(--hair);
+}
+
+.well--slim{ border-radius:28px; }
+
+/* ---------- the unified bar ---------- */
+
+.bar{
+  display:flex;
+  align-items:stretch;
+  height:64px;
+}
+
+.bar--slim{ height:44px; }
+
+/* keys: raised, edge to edge, seams drawn by the 1px shadow rings */
+
+.key{
+  appearance:none;
+  border:0;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-width:56px;
+  flex:1 1 0;
+  padding:0 8px;
+  color:var(--ink-2);
+  background:linear-gradient(180deg, var(--raised-top), var(--raised-bot));
+  box-shadow:var(--key-shadow);
+  cursor:pointer;
+  font-family:"Space Grotesk", sans-serif;
+  transition:background 120ms var(--ease), color 120ms var(--ease),
+             box-shadow 120ms var(--ease), transform 120ms var(--ease);
+}
+
+.key:hover{
+  background:linear-gradient(180deg, var(--raised-top-h), var(--raised-bot-h));
+  color:var(--ink);
+}
+
+.key:active{
+  transform:translateY(1px);
+  box-shadow:var(--key-shadow-down);
+}
+
+.key:focus-visible{
+  outline:2px solid var(--ink-2);
+  outline-offset:2px;
+  z-index:2;
+}
+
+.key svg{ display:block; flex:none; }
+
+/* pill ends */
+.bar .key:first-child{ border-radius:32px 0 0 32px; }
+.bar .key:last-child{ border-radius:0 32px 32px 0; }
+.bar--slim .key:first-child{ border-radius:22px 0 0 22px; }
+.bar--slim .key:last-child{ border-radius:0 22px 22px 0; }
+
+/* hero: the single white primary (play/pause) */
+
+.key--hero{
+  flex:1.3 1 0;
+  min-width:84px;
+  color:var(--white-ink);
+  background:linear-gradient(180deg, var(--hero-top), var(--hero-bot));
+}
+
+.key--hero:hover{
+  color:var(--white-ink);
+  background:linear-gradient(180deg, var(--hero-top-h), var(--hero-bot-h));
+}
+
+/* recessed readout cells (not interactive) */
+
+.cell{
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  background:var(--well);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.65),
+    inset 0 0 0 1px rgba(0,0,0,0.55);
+  z-index:1;
+}
+
+.cell__label{
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.cell__value{
+  font-family:"DM Mono", monospace;
+  font-variant-numeric:tabular-nums;
+  font-size:21px;
+  font-weight:500;
+  line-height:1;
+  color:var(--ink);
+}
+
+.cell--vol{ width:96px; }
+.cell--ch{ width:52px; }
+
+/* key captions + status dot (mute) */
+
+.key__caption{
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  transition:color 120ms var(--ease);
+}
+
+.key:hover .key__caption{ color:var(--ink-2); }
+
+.key__dot{
+  position:absolute;
+  top:9px;
+  right:11px;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--ink-4);
+  box-shadow:inset 0 1px 1px rgba(0,0,0,0.5);
+}
+
+/* engaged mute state (toggle on) */
+.key[aria-pressed="true"]{
+  background:linear-gradient(180deg, var(--raised-bot), #161618);
+  box-shadow:var(--key-shadow-down);
+  color:var(--ink);
+}
+.key[aria-pressed="true"] .key__dot{
+  background:var(--live);
+  box-shadow:0 0 6px rgba(240,84,76,0.6);
+}
+
+/* ---------- slim variant tweaks ---------- */
+
+.bar--slim .key{ min-width:48px; padding:0 6px; }
+.bar--slim .cell--vol{ width:72px; flex-direction:row; gap:7px; }
+.bar--slim .cell--vol .cell__value{ font-size:15px; }
+.bar--slim .cell--ch{ width:44px; }
+
+.divider{
+  height:1px;
+  background:var(--hair);
+  margin:34px 0 26px;
+}
+</style>
+</head>
+<body>
+
+<section class="deck" aria-label="TubeLounge media controls">
+
+  <div class="deck__head">
+    <span class="microlabel">TubeLounge &middot; Media Bar</span>
+    <span class="microlabel microlabel--dim">Deck 01</span>
+  </div>
+
+  <!-- primary bar -->
+  <div class="well">
+    <div class="bar" role="group" aria-label="Playback, volume and channel controls">
+
+      <button class="key key--hero" type="button" aria-label="Pause playback">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+          <rect x="3.5" y="2.5" width="4" height="13" rx="1.2"/>
+          <rect x="10.5" y="2.5" width="4" height="13" rx="1.2"/>
+        </svg>
+      </button>
+
+      <button class="key" type="button" aria-label="Volume down">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="3.5" y1="8" x2="12.5" y2="8"/>
+        </svg>
+      </button>
+
+      <div class="cell cell--vol">
+        <span class="cell__label" id="vol-label">Volume</span>
+        <span class="cell__value" aria-labelledby="vol-label">34</span>
+      </div>
+
+      <button class="key" type="button" aria-label="Volume up">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="3.5" y1="8" x2="12.5" y2="8"/>
+          <line x1="8" y1="3.5" x2="8" y2="12.5"/>
+        </svg>
+      </button>
+
+      <button class="key" type="button" aria-label="Channel down">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="4,6 8,10.5 12,6"/>
+        </svg>
+      </button>
+
+      <div class="cell cell--ch">
+        <span class="cell__label">CH</span>
+      </div>
+
+      <button class="key" type="button" aria-label="Channel up">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="4,10 8,5.5 12,10"/>
+        </svg>
+      </button>
+
+      <button class="key" type="button" aria-label="Mute" aria-pressed="false">
+        <span class="key__dot" aria-hidden="true"></span>
+        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2.5 6.5h2.6L9 3.5v10L5.1 10.5H2.5z" fill="currentColor" stroke="none"/>
+          <line x1="11.5" y1="6.5" x2="15" y2="10"/>
+          <line x1="15" y1="6.5" x2="11.5" y2="10"/>
+        </svg>
+        <span class="key__caption">Mute</span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="divider" role="presentation"></div>
+  <p class="microlabel microlabel--dim" style="margin-bottom:14px;">Compact variant &middot; 44px</p>
+
+  <!-- slim reference bar -->
+  <div class="well well--slim">
+    <div class="bar bar--slim" role="group" aria-label="Compact playback, volume and channel controls">
+
+      <button class="key key--hero" type="button" aria-label="Pause playback">
+        <svg width="14" height="14" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+          <rect x="3.5" y="2.5" width="4" height="13" rx="1.2"/>
+          <rect x="10.5" y="2.5" width="4" height="13" rx="1.2"/>
+        </svg>
+      </button>
+
+      <button class="key" type="button" aria-label="Volume down">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="3.5" y1="8" x2="12.5" y2="8"/>
+        </svg>
+      </button>
+
+      <div class="cell cell--vol">
+        <span class="cell__label" id="vol-label-slim">Vol</span>
+        <span class="cell__value" aria-labelledby="vol-label-slim">34</span>
+      </div>
+
+      <button class="key" type="button" aria-label="Volume up">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <line x1="3.5" y1="8" x2="12.5" y2="8"/>
+          <line x1="8" y1="3.5" x2="8" y2="12.5"/>
+        </svg>
+      </button>
+
+      <button class="key" type="button" aria-label="Channel down">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="4,6 8,10.5 12,6"/>
+        </svg>
+      </button>
+
+      <div class="cell cell--ch">
+        <span class="cell__label">CH</span>
+      </div>
+
+      <button class="key" type="button" aria-label="Channel up">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="4,10 8,5.5 12,10"/>
+        </svg>
+      </button>
+
+      <button class="key" type="button" aria-label="Mute" aria-pressed="false">
+        <svg width="15" height="15" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2.5 6.5h2.6L9 3.5v10L5.1 10.5H2.5z" fill="currentColor" stroke="none"/>
+          <line x1="11.5" y1="6.5" x2="15" y2="10"/>
+          <line x1="15" y1="6.5" x2="11.5" y2="10"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+</section>
+
+</body>
+</html>

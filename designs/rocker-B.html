@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TubeLounge — Rocker B</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#0d0d0e;
+  --raised-top:#262528;
+  --raised-bot:#1a1a1c;
+  --well:#0a0a0b;
+  --hair:rgba(255,255,255,0.07);
+  --hair-2:rgba(255,255,255,0.12);
+  --sheen:rgba(255,255,255,0.05);
+  --ink:#f4f3f1;
+  --ink-2:#a4a3a0;
+  --ink-3:#6d6c69;
+  --ink-4:#484745;
+  --white-ink:#121213;
+  --live:#f0544c;
+  --ease:cubic-bezier(0.23,1,0.32,1);
+  --key-shadow:0 1px 0 var(--sheen) inset, 0 2px 4px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.45);
+  --key-shadow-down:0 1px 0 var(--sheen) inset, 0 1px 1px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.45);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{ height:100%; }
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Space Grotesk",sans-serif;
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+  padding:32px 24px;
+  -webkit-font-smoothing:antialiased;
+}
+
+.stage{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+
+.stage-label{
+  font-family:"DM Mono",monospace;
+  font-size:11px;
+  font-weight:400;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+/* ---------- panel ---------- */
+
+.panel{
+  width:760px;
+  max-width:calc(100vw - 48px);
+  padding:60px;
+  border-radius:26px;
+  background:linear-gradient(180deg,#161518,#111013);
+  box-shadow:
+    inset 0 1px 0 var(--sheen),
+    0 0 0 1px rgba(0,0,0,0.6),
+    0 30px 60px rgba(0,0,0,0.5),
+    0 8px 20px rgba(0,0,0,0.4);
+  display:flex;
+  flex-direction:column;
+  gap:34px;
+}
+
+/* ---------- rows ---------- */
+
+.row{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.row-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 2px;
+}
+
+.row-label{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.row-status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:"DM Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.live-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--live);
+  box-shadow:0 0 6px rgba(240,84,76,0.55);
+}
+
+.row-body{
+  display:flex;
+  align-items:stretch;
+  gap:10px;
+}
+
+/* ---------- keys ---------- */
+
+.key{
+  appearance:none;
+  border:0;
+  cursor:pointer;
+  font-family:inherit;
+  color:var(--ink-2);
+  background:linear-gradient(180deg,var(--raised-top),var(--raised-bot));
+  box-shadow:var(--key-shadow);
+  border-radius:12px;
+  min-width:72px;
+  min-height:56px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.12s var(--ease),
+    color 0.12s var(--ease),
+    background 0.12s var(--ease);
+}
+
+.key:hover{
+  color:var(--ink);
+  background:linear-gradient(180deg,#2d2c30,#1e1e21);
+}
+
+.key:active{
+  transform:translateY(1px);
+  box-shadow:var(--key-shadow-down);
+}
+
+.key:focus-visible,
+.primary:focus-visible{
+  outline:2px solid var(--ink-2);
+  outline-offset:3px;
+}
+
+.key svg{
+  display:block;
+  flex:none;
+}
+
+/* ---------- inset wells ---------- */
+
+.well{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  min-height:56px;
+  padding:0 20px;
+  border-radius:12px;
+  background:var(--well);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(0,0,0,0.55),
+    0 1px 0 var(--sheen);
+}
+
+/* volume meter */
+
+.meter{
+  flex:1;
+  position:relative;
+  height:16px;
+  border-radius:3px;
+  overflow:hidden;
+  background:repeating-linear-gradient(
+    90deg,
+    var(--ink-4) 0 5px,
+    transparent 5px 10px
+  );
+  opacity:1;
+}
+
+.meter::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    90deg,
+    var(--bg) 0 5px,
+    transparent 5px 10px
+  );
+  opacity:0.55; /* dims the unfilled ticks */
+}
+
+.meter-fill{
+  position:absolute;
+  inset:0 auto 0 0;
+  width:34%;
+  background:repeating-linear-gradient(
+    90deg,
+    var(--ink-2) 0 5px,
+    transparent 5px 10px
+  );
+}
+
+.mono-value{
+  font-family:"DM Mono",monospace;
+  font-variant-numeric:tabular-nums;
+  font-size:22px;
+  font-weight:500;
+  color:var(--ink);
+  line-height:1;
+}
+
+.mono-unit{
+  font-family:"DM Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+}
+
+/* channel readout */
+
+.ch-readout{
+  justify-content:center;
+  gap:14px;
+}
+
+.ch-tag{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.ch-name{
+  font-size:12px;
+  font-weight:400;
+  letter-spacing:0.06em;
+  color:var(--ink-3);
+}
+
+.ch-sep{
+  width:1px;
+  height:18px;
+  background:var(--hair-2);
+}
+
+/* ---------- transport ---------- */
+
+.primary{
+  appearance:none;
+  border:0;
+  cursor:pointer;
+  flex:1;
+  min-height:60px;
+  border-radius:12px;
+  font-family:inherit;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  color:var(--white-ink);
+  background:linear-gradient(180deg,#faf9f7,#e6e4e0);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.7) inset,
+    0 2px 4px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(0,0,0,0.45);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.12s var(--ease),
+    background 0.12s var(--ease);
+}
+
+.primary:hover{
+  background:linear-gradient(180deg,#ffffff,#efedea);
+}
+
+.primary:active{
+  transform:translateY(1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.7) inset,
+    0 1px 1px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(0,0,0,0.45);
+}
+
+.key-mute{
+  min-width:132px;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  min-height:60px;
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <p class="stage-label">Tubelounge · Remote 01</p>
+
+  <main class="panel" aria-label="TV remote control cluster">
+
+    <!-- VOLUME -->
+    <section class="row" aria-label="Volume">
+      <div class="row-head">
+        <span class="row-label">Volume</span>
+      </div>
+      <div class="row-body">
+        <button class="key" type="button" aria-label="Volume down">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2.5 8h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="well">
+          <div class="meter" role="img" aria-label="Volume level 34 of 100">
+            <div class="meter-fill"></div>
+          </div>
+          <span class="mono-value" aria-hidden="true">34</span>
+          <span class="mono-unit" aria-hidden="true">/100</span>
+        </div>
+        <button class="key" type="button" aria-label="Volume up">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- CHANNEL -->
+    <section class="row" aria-label="Channel">
+      <div class="row-head">
+        <span class="row-label">Channel</span>
+      </div>
+      <div class="row-body">
+        <button class="key" type="button" aria-label="Channel down">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2.5 8h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="well ch-readout">
+          <span class="ch-tag">CH</span>
+          <span class="mono-value">07</span>
+          <span class="ch-sep" aria-hidden="true"></span>
+          <span class="ch-name">Arte HD</span>
+        </div>
+        <button class="key" type="button" aria-label="Channel up">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- TRANSPORT -->
+    <section class="row" aria-label="Playback">
+      <div class="row-head">
+        <span class="row-label">Playback</span>
+        <span class="row-status"><span class="live-dot" aria-hidden="true"></span>Now playing</span>
+      </div>
+      <div class="row-body">
+        <button class="primary" type="button" aria-label="Pause playback">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <rect x="2.5" y="1.5" width="3.2" height="11" rx="1" fill="currentColor"/>
+            <rect x="8.3" y="1.5" width="3.2" height="11" rx="1" fill="currentColor"/>
+          </svg>
+          Pause
+        </button>
+        <button class="key key-mute" type="button" aria-label="Mute audio" aria-pressed="false">
+          <svg width="17" height="16" viewBox="0 0 17 16" fill="none" aria-hidden="true">
+            <path d="M2 5.8v4.4h2.8L9 13.4V2.6L4.8 5.8H2z" fill="currentColor"/>
+            <path d="M11.6 5.5 15.1 9M15.1 5.5 11.6 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Mute
+        </button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

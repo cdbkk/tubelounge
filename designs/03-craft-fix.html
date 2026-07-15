@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TubeLounge — Craft Fix</title>
+    <link rel="icon" href="data:,">
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap");
+      :root {
+        color-scheme: dark;
+        --bg: #090909;
+        --surface: #111;
+        --line: #232323;
+        --line-strong: #303030;
+        --ink: #f2f2f2;
+        --muted: #b0b0b0;          /* lifted from #a6a6a6 for legibility on ghost controls */
+        --quiet: #7a7a7a;          /* lifted from #6f6f6f */
+        --inverse: #f2f2f2;
+        --inverse-ink: #090909;
+        --live: #46d67f;           /* state color: on air */
+        --alert: #ff6b6b;          /* state color: power / error */
+        --ease: cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Manrope", sans-serif; -webkit-font-smoothing: antialiased; }
+      button { font-family: inherit; }
+
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 40px; width: min(1760px, calc(100% - 88px)); margin-inline: auto; min-height: 92px; }
+      .brand { display: flex; align-items: center; gap: 16px; }
+      .brand-mark { width: 15px; height: 15px; border: 1px solid var(--ink); }
+      h1 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+      .topbar-right { display: flex; align-items: center; gap: 28px; }
+      .signal-stack { display: grid; gap: 8px; }
+      .signal { display: flex; align-items: center; gap: 9px; color: var(--muted); font: 500 10px/1 "DM Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+      .signal-led { width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+      .settings-toggle { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--muted); cursor: pointer; transition: border-color 120ms var(--ease), background-color 120ms var(--ease), color 120ms var(--ease); }
+      .settings-toggle:hover { border-color: var(--inverse); background: var(--inverse); color: var(--inverse-ink); }
+      .settings-toggle:active { opacity: 0.72; }
+      .settings-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+      main { width: min(1760px, calc(100% - 88px)); margin-inline: auto; padding-bottom: 90px; }
+
+      .url-dock { padding: 34px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .url-dock form { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 0; }
+      input[type="url"] { min-width: 0; height: 52px; padding: 0 18px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font: 400 13px/1 "DM Mono", monospace; outline: 0; }
+      input::placeholder { color: var(--quiet); }
+      input[type="url"]:focus { border-color: var(--ink); }
+
+      .button, .icon-button, .app-button, .remote-button, .dpad button, .rocker button, .row-action {
+        border: 1px solid var(--line-strong); background: var(--surface); cursor: pointer;
+        transition: background-color 120ms var(--ease), border-color 120ms var(--ease), color 120ms var(--ease), transform 90ms var(--ease);
+      }
+      .button { min-height: 52px; padding: 0 22px; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+      .button.primary { border-color: var(--inverse); background: var(--inverse); color: var(--inverse-ink); }
+      .button:hover, .icon-button:hover, .app-button:hover, .remote-button:hover, .dpad button:hover, .rocker button:hover, .row-action:hover {
+        border-color: var(--inverse); background: var(--inverse); color: var(--inverse-ink);
+      }
+      /* craft fix: real press feedback, was only opacity */
+      .button:active, .icon-button:active, .app-button:active, .remote-button:active, .dpad button:active, .rocker button:active, .row-action:active {
+        transform: scale(0.97); opacity: 0.9;
+      }
+
+      .console { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); padding: 54px 0 60px; }
+      .now-playing { min-width: 0; display: flex; flex-direction: column; padding-right: 48px; }
+      .console-side { min-width: 0; display: flex; flex-direction: column; padding-left: 48px; border-left: 1px solid var(--line); }
+      .remote-part { margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--line); }
+
+      .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+      .section-heading h2 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+      .updated, .remote-protocol, .queue-count, .history-count { color: var(--quiet); font: 400 9px/1.3 "DM Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+
+      .now-head { display: grid; grid-template-columns: 240px minmax(0,1fr); gap: 28px; align-items: start; }
+      .screen-frame { position: relative; margin: 0; aspect-ratio: 16/9; overflow: hidden; border: 1px solid var(--line-strong); background: #141414; }
+      .screen-frame .ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--quiet); font: 400 26px/1 "DM Mono", monospace; opacity: 0.5; }
+      /* craft fix: live bug now reads as a real state, not just a box */
+      .live-bug { position: absolute; left: 12px; top: 12px; padding: 6px 9px; border: 1px solid var(--live); background: rgba(70,214,127,0.12); color: var(--live); font: 500 9px/1 "DM Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+      .live-bug::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+      .eyebrow { margin: 0; color: var(--live); font: 500 9px/1.2 "DM Mono", monospace; letter-spacing: 0.14em; text-transform: uppercase; }
+      .now-copy h3 { margin: 12px 0 0; font-size: clamp(24px,2.6vw,40px); line-height: 1.02; font-weight: 400; letter-spacing: -0.045em; }
+      .video-id { margin-top: 14px; color: var(--quiet); font: 400 10px/1.6 "DM Mono", monospace; }
+
+      .timecode { display: flex; align-items: baseline; gap: 8px; margin-top: 30px; color: var(--ink); font: 400 clamp(24px,2.2vw,34px)/1 "DM Mono", monospace; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+      .timecode .sep, .timecode .dur { color: var(--quiet); }
+      .broadcast-rail { margin-top: 22px; }
+      .rail-labels { display: flex; justify-content: space-between; color: var(--quiet); font: 400 9px/1 "DM Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+      .rail-track { position: relative; height: 2px; margin-top: 12px; background: var(--line-strong); }
+      .rail-progress { position: absolute; left: 0; top: 0; height: 100%; width: 22%; background: var(--ink); }
+      .rail-progress::after { content: ""; position: absolute; right: -1px; top: -3px; width: 2px; height: 8px; background: var(--ink); }
+
+      .transport { display: grid; grid-template-columns: repeat(3, minmax(0,128px)); gap: 8px; margin-top: 28px; }
+      .icon-button { height: 52px; display: grid; place-items: center; color: var(--muted); }
+      .icon-button svg { width: 16px; height: 16px; fill: currentColor; }
+      .play-button { border-color: var(--inverse); background: var(--inverse); color: var(--inverse-ink); }
+
+      .level-strip { display: grid; gap: 12px; margin-top: auto; padding-top: 28px; }
+      .level-strip label { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+      .level-strip output { margin-left: 8px; color: var(--ink); font-family: "DM Mono", monospace; }
+      input[type="range"] { width: 100%; accent-color: var(--ink); cursor: pointer; }
+
+      .app-launcher { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+      .app-button { min-height: 60px; display: flex; align-items: center; justify-content: center; gap: 8px; border-width: 0 1px 1px 0; border-color: var(--line); color: var(--muted); padding: 0 12px; font-size: 12px; font-weight: 600; }
+      .app-tag { display: inline-grid; place-items: center; min-width: 22px; padding: 2px 4px; border: 1px solid currentColor; font: 700 8px/1 "DM Mono", monospace; }
+
+      .rescan-button { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 0 12px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--muted); cursor: pointer; font: 600 9px/1 "Manrope"; letter-spacing: 0.06em; text-transform: uppercase; transition: all 120ms var(--ease); }
+      .rescan-button:hover { border-color: var(--inverse); background: var(--inverse); color: var(--inverse-ink); }
+      .rescan-button svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .remote-head-meta { display: flex; align-items: center; gap: 14px; }
+
+      .remote-shortcuts { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+      .remote-button { min-height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; border-width: 0 1px 1px 0; border-color: var(--line); color: var(--muted); font-size: 9px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+      .remote-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+      .remote-button.wake { color: var(--ink); }
+      .remote-button.power-off { color: var(--alert); }
+      .remote-button.power-off:hover { border-color: var(--alert); background: var(--alert); color: #120404; }
+
+      .remote-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; margin-top: 36px; }
+      .dpad { width: min(190px,100%); aspect-ratio: 1; display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); gap: 1px; margin-inline: auto; }
+      .dpad button { display: grid; place-items: center; border-color: var(--line); color: var(--muted); font: 400 20px/1 "DM Mono", monospace; }
+      .dpad button:nth-child(1){grid-area:1/2}.dpad button:nth-child(2){grid-area:2/1}.dpad button:nth-child(3){grid-area:2/2}.dpad button:nth-child(4){grid-area:2/3}.dpad button:nth-child(5){grid-area:3/2}
+      /* craft fix: OK was a faint outline, now clearly the primary target */
+      .dpad-enter { border-color: var(--inverse) !important; background: var(--inverse) !important; color: var(--inverse-ink) !important; font-size: 10px !important; font-weight: 700 !important; }
+      .remote-rockers { display: grid; gap: 10px; align-content: start; }
+      .rocker { display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; }
+      .rocker button { min-height: 46px; display: grid; place-items: center; border-color: var(--line); color: var(--muted); font: 400 18px/1 "DM Mono", monospace; }
+      .rocker-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+      .rocker-label { display: grid; align-items: center; color: var(--quiet); font: 600 10px/1 "DM Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+
+      .queue-section, .history-section { padding: 54px 0; border-top: 1px solid var(--line); }
+      .queue-list, .history-list { margin: 0; padding: 0; list-style: none; }
+      .queue-card, .history-card { display: grid; grid-template-columns: 104px minmax(0,1fr) auto; gap: 16px; align-items: center; padding: 16px 0; border-top: 1px solid var(--line); }
+      .queue-card:last-child, .history-card:last-child { border-bottom: 1px solid var(--line); }
+      .qthumb { position: relative; aspect-ratio: 16/9; background: #141414; }
+      .qnum { position: absolute; left: 0; bottom: 0; padding: 5px 6px; background: var(--inverse); color: var(--inverse-ink); font: 500 9px/1 "DM Mono", monospace; }
+      .qmeta strong { display: block; font-size: 12px; font-weight: 500; }
+      .qmeta span { color: var(--quiet); font: 400 8px/1 "DM Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+      .row-action { min-height: 42px; padding: 0 18px; background: transparent; color: var(--muted); font: 600 10px/1 "Manrope"; letter-spacing: 0.08em; text-transform: uppercase; }
+
+      @media (max-width: 1080px){ .console{grid-template-columns:1fr} .now-playing{padding-right:0;padding-bottom:44px;border-bottom:1px solid var(--line)} .console-side{padding-left:0;padding-top:44px;border-left:0} }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span><h1>TubeLounge</h1></div>
+      <div class="topbar-right">
+        <div class="signal-stack">
+          <div class="signal"><span class="signal-led"></span> YouTube synced</div>
+          <div class="signal"><span class="signal-led"></span> Remote ready</div>
+        </div>
+        <button class="settings-toggle" aria-label="TV setup">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="url-dock">
+        <form onsubmit="return false">
+          <input type="url" placeholder="Paste a YouTube URL…">
+          <button class="button secondary" type="submit">Play now</button>
+          <button class="button primary" type="submit">Add to queue</button>
+        </form>
+      </section>
+
+      <section class="console">
+        <div class="now-playing">
+          <header class="section-heading"><h2>Now playing</h2><p class="updated">Updated 05:37 PM</p></header>
+          <div class="now-head">
+            <figure class="screen-frame"><span class="ph">▶</span><figcaption class="live-bug">Live</figcaption></figure>
+            <div class="now-copy">
+              <p class="eyebrow">On air</p>
+              <h3>Lofi Hip Hop Radio — beats to relax and study to</h3>
+              <p class="video-id">youtube.com/watch?v=jfKfPfyJRdk</p>
+            </div>
+          </div>
+          <div class="timecode"><span>00:42</span><span class="sep">/</span><span class="dur">03:18</span></div>
+          <div class="broadcast-rail">
+            <div class="rail-labels"><span>Progress</span><span>2 in queue</span></div>
+            <div class="rail-track"><span class="rail-progress"></span></div>
+          </div>
+          <div class="transport">
+            <button class="icon-button" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm12 1-8 6 8 6z"/></svg></button>
+            <button class="icon-button play-button" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
+            <button class="icon-button" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM6 6l8 6-8 6z"/></svg></button>
+          </div>
+          <div class="level-strip">
+            <label>Volume <output>34</output></label>
+            <input type="range" min="0" max="100" value="34">
+          </div>
+        </div>
+
+        <div class="console-side">
+          <div class="picker-part">
+            <header class="section-heading"><h2>Sources</h2></header>
+            <div class="app-launcher">
+              <button class="app-button"><span class="app-tag">YT</span> YouTube</button>
+              <button class="app-button">Netflix</button>
+              <button class="app-button">Max</button>
+            </div>
+          </div>
+          <div class="remote-part">
+            <header class="section-heading"><h2>Remote</h2>
+              <div class="remote-head-meta"><span class="remote-protocol">Tizen · 8002</span>
+                <button class="rescan-button"><svg viewBox="0 0 24 24"><path d="M4 9a8 8 0 0 1 13.7-4.2L20 7"/><path d="M20 3v4h-4"/><path d="M20 15a8 8 0 0 1-13.7 4.2L4 17"/><path d="M4 21v-4h4"/></svg><span>Rescan</span></button>
+              </div>
+            </header>
+            <div class="remote-shortcuts">
+              <button class="remote-button wake"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg><span>Wake</span></button>
+              <button class="remote-button"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h4v-5h4v5h4v-8.5"/></svg><span>Home</span></button>
+              <button class="remote-button"><svg viewBox="0 0 24 24"><path d="M10 8 6 12l4 4"/><path d="M6 12h9a4 4 0 0 1 0 8"/></svg><span>Back</span></button>
+              <button class="remote-button"><svg viewBox="0 0 24 24"><path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/></svg><span>Source</span></button>
+              <button class="remote-button power-off"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg><span>Power</span></button>
+            </div>
+            <div class="remote-controls">
+              <div class="dpad">
+                <button>↑</button><button>←</button><button class="dpad-enter">OK</button><button>→</button><button>↓</button>
+              </div>
+              <div class="remote-rockers">
+                <div class="rocker"><span class="rocker-label">Vol</span><button>−</button><button>+</button><button class="rocker-icon"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg></button></div>
+                <div class="rocker"><span class="rocker-label">Ch</span><button>−</button><button>+</button><button class="rocker-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="queue-section">
+        <header class="section-heading"><h2>Queue</h2><span class="queue-count">2 queued</span></header>
+        <ol class="queue-list">
+          <li class="queue-card"><span class="qthumb"><span class="qnum">1</span></span><span class="qmeta"><strong>Weightless — Marconi Union (extended)</strong><span>Up next</span></span><button class="row-action">Remove</button></li>
+          <li class="queue-card"><span class="qthumb"><span class="qnum">2</span></span><span class="qmeta"><strong>Tokyo night drive — 4K ambient</strong><span>Up next</span></span><button class="row-action">Remove</button></li>
+        </ol>
+      </section>
+
+      <section class="history-section">
+        <header class="section-heading"><h2>History</h2><span class="history-count">2 watched</span></header>
+        <ol class="history-list">
+          <li class="history-card"><span class="qthumb"></span><span class="qmeta"><strong>Coffee shop jazz — warm morning blend</strong><span>Play now</span></span><button class="row-action">Next</button></li>
+          <li class="history-card"><span class="qthumb"></span><span class="qmeta"><strong>Rainy window lofi — 3 hour loop</strong><span>Play now</span></span><button class="row-action">Next</button></li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

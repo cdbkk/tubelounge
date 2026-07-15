@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TubeLounge — Deck</title>
+    <link rel="icon" href="data:,">
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+      /*
+        Static tool. No entry/load/scroll animation. Only hover / :active / focus-visible / live state.
+        Full-bleed, no framed card. Neutral warm-dark palette. White is the only primary.
+        Colour appears once: a small red ON-AIR dot. Nothing else is coloured.
+      */
+      :root {
+        color-scheme: dark;
+        --bg: #0d0d0e;
+        --raised-top: #262528;
+        --raised-bot: #1a1a1c;
+        --well: #0a0a0b;
+        --hair: rgba(255,255,255,0.07);
+        --hair-2: rgba(255,255,255,0.12);
+        --sheen: rgba(255,255,255,0.05);
+        --ink: #f4f3f1;
+        --ink-2: #a4a3a0;
+        --ink-3: #6d6c69;
+        --ink-4: #484745;
+        --white: #f4f3f1;
+        --white-ink: #121213;
+        --live: #f0544c;
+        --live-dim: rgba(240,84,76,0.16);
+        --ease: cubic-bezier(0.23, 1, 0.32, 1);
+        --key-shadow: 0 1px 0 var(--sheen) inset, 0 2px 4px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.45);
+        --key-shadow-down: 0 1px 0 var(--sheen) inset, 0 1px 1px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.45);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; }
+      body { min-height: 100vh; background: var(--bg); color: var(--ink);
+        font-family: "Space Grotesk", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+      button { font-family: inherit; color: inherit; }
+      h1, h2, .film-title { text-wrap: balance; }
+      .wrap { width: min(1500px, 100%); margin: 0 auto; padding: 26px 48px 80px; }
+
+      /* shared tactile key */
+      .key { background: linear-gradient(180deg, var(--raised-top), var(--raised-bot)); box-shadow: var(--key-shadow);
+        border: 0; cursor: pointer; transition: transform 90ms var(--ease), color 140ms var(--ease); color: var(--ink); }
+      .key:active { transform: translateY(1px); box-shadow: var(--key-shadow-down); }
+
+      /* ---- header ---- */
+      .head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 22px; }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand-mark { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
+        background: linear-gradient(180deg, var(--raised-top), var(--raised-bot)); box-shadow: var(--key-shadow); }
+      .brand-mark i { width: 9px; height: 9px; border-radius: 2px; background: var(--ink); }
+      .brand h1 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+      .head-right { display: flex; align-items: center; gap: 20px; }
+      .status { display: flex; align-items: center; gap: 16px; }
+      .stat { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--ink-3); font: 500 10px/1 "DM Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+      .stat .dot { flex: 0 0 auto; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-2); }
+      .stat.conn .dot { background: var(--ink); box-shadow: 0 0 0 3px rgba(255,255,255,0.08); }
+      .gear { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; color: var(--ink-2); }
+      .gear:hover { color: var(--ink); }
+      .gear svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+      /* ---- cast bar ---- */
+      .cast { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 10px; padding: 22px 0; border-top: 1px solid var(--hair); }
+      .cast-field { position: relative; display: flex; align-items: center; }
+      .cast-field svg { position: absolute; left: 16px; width: 16px; height: 16px; fill: none; stroke: var(--ink-3); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+      .cast input { width: 100%; height: 52px; padding: 0 16px 0 44px; border: 0; border-radius: 13px;
+        background: var(--well); box-shadow: 0 0 0 1px var(--hair) inset; color: var(--ink);
+        font: 400 13px/1 "DM Mono", monospace; outline: none; transition: box-shadow 140ms var(--ease); }
+      .cast input::placeholder { color: var(--ink-4); }
+      .cast input:focus { box-shadow: 0 0 0 1px var(--hair-2) inset, 0 0 0 3px rgba(255,255,255,0.06); }
+      .btn { height: 52px; padding: 0 22px; border-radius: 13px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; white-space: nowrap;
+        background: linear-gradient(180deg, var(--raised-top), var(--raised-bot)); color: var(--ink-2); box-shadow: var(--key-shadow);
+        border: 0; cursor: pointer; transition: transform 90ms var(--ease), color 140ms var(--ease); }
+      .btn:hover { color: var(--ink); }
+      .btn:active { transform: translateY(1px); box-shadow: var(--key-shadow-down); }
+      .btn.go { background: linear-gradient(180deg, #ffffff, #e6e4e0); color: var(--white-ink); font-weight: 700;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 6px 16px -6px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.35); }
+      .btn.go:hover { color: var(--white-ink); filter: brightness(1.02); }
+
+      /* ---- main split ---- */
+      .main { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: 40px; padding: 30px 0 34px;
+        border-top: 1px solid var(--hair); }
+      .col-l { min-width: 0; position: relative; display: flex; flex-direction: column; gap: 26px; }
+      .col-r { min-width: 0; position: relative; padding-left: 40px; }
+      .col-r::before { content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: var(--hair); }
+
+      /* ---- now playing ---- */
+      .np { display: grid; grid-template-columns: 232px minmax(0,1fr); gap: 22px; align-items: start; }
+      .np-thumb { position: relative; aspect-ratio: 16/9; border-radius: 13px; overflow: hidden;
+        background: linear-gradient(145deg, #3a3238 0%, #24222b 42%, #14161c 100%);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 10px 26px -12px rgba(0,0,0,0.8); }
+      .np-thumb::after { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 90% at 30% 15%, rgba(255,255,255,0.12), transparent 60%); }
+      .onair { position: absolute; top: 11px; left: 11px; display: flex; align-items: center; gap: 7px; padding: 5px 9px;
+        border-radius: 999px; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); color: #ffd9d6;
+        font: 600 8px/1 "DM Mono", monospace; letter-spacing: 0.16em; }
+      .onair i { width: 6px; height: 6px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); }
+      .np-meta { min-width: 0; padding-top: 2px; }
+      .np-meta .eyebrow { margin: 0; color: var(--ink-3); font: 500 9px/1 "DM Mono", monospace; letter-spacing: 0.18em; text-transform: uppercase; }
+      .np-meta h2 { margin: 10px 0 0; font-size: clamp(20px, 2vw, 26px); font-weight: 600; line-height: 1.14; letter-spacing: -0.015em; }
+      .np-meta .src { margin: 8px 0 0; color: var(--ink-3); font: 400 11px/1 "DM Mono", monospace; }
+      .scrub { margin-top: 18px; }
+      .scrub-line { position: relative; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.12); }
+      .scrub-fill { position: absolute; left: 0; top: 0; height: 100%; width: 22%; border-radius: 999px; background: var(--ink); }
+      .scrub-knob { position: absolute; left: 22%; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #fff; transform: translate(-50%,-50%); box-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+      .scrub-time { display: flex; justify-content: space-between; margin-top: 10px; color: var(--ink-2); font: 400 11px/1 "DM Mono", monospace; font-variant-numeric: tabular-nums; }
+      .scrub-time .dur { color: var(--ink-3); }
+
+      .transport { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 10px; margin-top: 0; }
+      .fader { display: flex; align-items: center; gap: 14px; margin-top: auto; padding: 15px 16px; border-radius: 14px;
+        background: var(--well); box-shadow: 0 0 0 1px var(--hair) inset; }
+      .fader svg { width: 18px; height: 18px; fill: none; stroke: var(--ink-2); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .fader-track { position: relative; flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.10); }
+      .fader-fill { position: absolute; left: 0; top: 0; height: 100%; width: 34%; border-radius: 999px; background: var(--ink); }
+      .fader-knob { position: absolute; left: 34%; top: 50%; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%,-50%);
+        background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+      .fader-val { color: var(--ink); font: 500 12px/1 "DM Mono", monospace; font-variant-numeric: tabular-nums; min-width: 26px; text-align: right; }
+      .tkey { height: 60px; border-radius: 14px; display: grid; place-items: center; }
+      .tkey svg { width: 22px; height: 22px; fill: currentColor; }
+      .tkey.play { background: linear-gradient(180deg, #fbfbf9, #dedcd7); color: var(--white-ink);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 6px 16px -6px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.35); }
+
+
+      /* ---- right column (kept: sources + remote) ---- */
+      .pane-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+      .pane-label span { color: var(--ink-3); font: 500 10px/1 "DM Mono", monospace; letter-spacing: 0.16em; text-transform: uppercase; }
+      .pane-label .meta { color: var(--ink-4); letter-spacing: 0.08em; }
+
+      .sources { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; padding: 4px; border-radius: 12px;
+        background: var(--well); box-shadow: 0 0 0 1px var(--hair) inset; }
+      .seg { height: 42px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; color: var(--ink-3);
+        font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 7px;
+        transition: color 140ms var(--ease), background 140ms var(--ease); }
+      .seg:hover { color: var(--ink-2); }
+      .seg.on { color: var(--ink); background: linear-gradient(180deg, var(--raised-top), var(--raised-bot)); box-shadow: var(--key-shadow); }
+      .seg .logo { display: inline-grid; place-items: center; width: 22px; height: 20px; flex: 0 0 auto; }
+      .seg .logo svg { display: block; }
+      .logo-max { font: 800 14px/1 "Space Grotesk", sans-serif; letter-spacing: -0.05em; text-transform: lowercase;
+        background: linear-gradient(95deg, #4f86ff, #8a5cff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .seg { transition: color 140ms var(--ease), background 140ms var(--ease), opacity 140ms var(--ease); }
+      .seg:not(.on) .logo { opacity: 0.7; }
+      .seg:not(.on):hover .logo { opacity: 1; }
+
+      .shortcuts { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-top: 16px; }
+      .skey { height: 58px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+        color: var(--ink-2); font-size: 9px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+      .skey:hover { color: var(--ink); }
+      .skey svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .skey.pwr { color: var(--live); }
+      .skey.pwr:hover { color: #ff8079; }
+
+      .nav { display: grid; grid-template-columns: 1fr auto; gap: 22px; margin-top: 18px; align-items: center; }
+      .dpad { position: relative; width: 208px; height: 208px; margin: 0 auto; border-radius: 50%;
+        background: radial-gradient(80% 80% at 50% 35%, #232227, #131316);
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 1px 0 var(--hair-2) inset, 0 10px 24px -8px rgba(0,0,0,0.8);
+        display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); place-items: center; }
+      .dpad::before { content: ""; position: absolute; inset: 14px; border-radius: 50%; box-shadow: 0 0 0 1px var(--hair) inset; pointer-events: none; }
+      .dbtn { width: 100%; height: 100%; border: 0; background: transparent; cursor: pointer; color: var(--ink-3);
+        display: grid; place-items: center; transition: color 120ms var(--ease); border-radius: 12px; }
+      .dbtn:hover { color: var(--ink); }
+      .dbtn:active { color: var(--ink); }
+      .dbtn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .dbtn.up { grid-area: 1/2; } .dbtn.left { grid-area: 2/1; } .dbtn.right { grid-area: 2/3; } .dbtn.down { grid-area: 3/2; }
+      .ok { grid-area: 2/2; width: 82px; height: 82px; border-radius: 50%; border: 0; cursor: pointer;
+        background: radial-gradient(70% 70% at 50% 28%, #fbfbf9, #d8d6d1); color: var(--white-ink);
+        font: 700 12px/1 "DM Mono", monospace; letter-spacing: 0.1em;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 6px 16px -4px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,0,0,0.4);
+        transition: transform 90ms var(--ease); }
+      .ok:active { transform: scale(0.96); }
+
+      /* volume rocker cluster */
+      .volcluster { display: flex; align-items: center; gap: 20px; }
+      .vrock { position: relative; width: 66px; height: 208px; border-radius: 34px; background: var(--well);
+        box-shadow: inset 0 3px 9px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(0,0,0,0.55), 0 1px 0 var(--sheen); perspective: 700px; }
+      .vrock-shell { position: absolute; inset: 5px; border-radius: 30px; pointer-events: none;
+        background: linear-gradient(180deg, var(--raised-top), var(--raised-bot)); box-shadow: var(--key-shadow);
+        transition: transform 100ms var(--ease), box-shadow 100ms var(--ease); }
+      .vrock-seam { position: absolute; left: 12px; right: 12px; top: 50%; height: 1px; background: rgba(0,0,0,0.55); box-shadow: 0 1px 0 rgba(255,255,255,0.06); }
+      .vrock-half { position: absolute; left: 5px; right: 5px; background: transparent; border: 0; cursor: pointer; color: var(--ink-2);
+        display: flex; justify-content: center; transition: color 120ms var(--ease); }
+      .vrock-half svg { width: 18px; height: 18px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); transition: transform 90ms var(--ease); }
+      .vrock-half.up { top: 5px; bottom: 50%; align-items: flex-start; padding-top: 30px; border-radius: 30px 30px 8px 8px; }
+      .vrock-half.down { top: 50%; bottom: 5px; align-items: flex-end; padding-bottom: 30px; border-radius: 8px 8px 30px 30px; }
+      .vrock-half:hover { color: var(--ink); }
+      .vrock:has(.up:active) .vrock-shell { transform: rotateX(7deg); box-shadow: var(--key-shadow-down); }
+      .vrock:has(.down:active) .vrock-shell { transform: rotateX(-7deg); box-shadow: var(--key-shadow-down); }
+      .vol-side { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+      .vol-readout { font: 500 20px/1 "DM Mono", monospace; font-variant-numeric: tabular-nums; color: var(--ink);
+        padding: 9px 16px; border-radius: 10px; background: var(--well);
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(0,0,0,0.5), 0 1px 0 var(--sheen); }
+      .vol-cap { font: 600 9px/1 "DM Mono", monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin-top: -6px; }
+      .vol-mute { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); }
+      .vol-mute:hover { color: var(--ink); }
+      .vol-mute svg { width: 20px; height: 20px; }
+
+      /* ---- tray (kept: up next + recent) ---- */
+      .tray { padding-top: 26px; border-top: 1px solid var(--hair); }
+      .tray-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+      .tray-head h3 { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+      .tray-head .count { color: var(--ink-4); font: 400 10px/1 "DM Mono", monospace; letter-spacing: 0.08em; }
+      .filmstrip { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+      .film { position: relative; }
+      .film-thumb { position: relative; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden;
+        background: linear-gradient(135deg, #2a2830, #131318); box-shadow: 0 0 0 1px var(--hair) inset; }
+      .film-num { position: absolute; left: 8px; top: 8px; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center;
+        background: rgba(0,0,0,0.55); color: var(--ink); font: 600 10px/1 "DM Mono", monospace; box-shadow: 0 0 0 1px var(--hair-2) inset; }
+      .film-rm { position: absolute; right: 8px; top: 8px; width: 26px; height: 26px; border-radius: 7px; border: 0; cursor: pointer;
+        background: rgba(0,0,0,0.55); color: var(--ink-2); display: grid; place-items: center; opacity: 0; transition: opacity 140ms var(--ease); }
+      .film:hover .film-rm { opacity: 1; }
+      .film-rm svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+      .film-title { margin-top: 9px; font-size: 12px; font-weight: 500; line-height: 1.35; color: var(--ink);
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+      .recent { margin-top: 26px; }
+      .ritem { display: flex; align-items: center; gap: 4px; border-top: 1px solid var(--hair); }
+      .rrow { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 11px 10px; margin: 0 -10px;
+        background: transparent; border: 0; cursor: pointer; text-align: left; color: inherit; font: inherit; border-radius: 10px;
+        transition: background 140ms var(--ease); }
+      .rrow:hover { background: rgba(255,255,255,0.035); }
+      .rthumb { position: relative; flex: 0 0 68px; aspect-ratio: 16/9; border-radius: 7px; display: grid; place-items: center; overflow: hidden;
+        background: linear-gradient(135deg,#26242c,#111116); box-shadow: 0 0 0 1px var(--hair) inset; }
+      .rthumb::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 140ms var(--ease); }
+      .rrow:hover .rthumb::before { opacity: 1; }
+      .rplay-ic { position: relative; width: 20px; height: 20px; fill: #fff; opacity: 0; transition: opacity 140ms var(--ease);
+        filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8)); }
+      .rrow:hover .rplay-ic { opacity: 1; }
+      .rmeta { flex: 1; min-width: 0; }
+      .rmeta strong { display: block; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .rmeta span { color: var(--ink-4); font: 400 9px/1 "DM Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+      /* kebab menu */
+      .rmenu { position: relative; flex: 0 0 auto; }
+      .rmenu > summary { list-style: none; width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center;
+        color: var(--ink-3); cursor: pointer; transition: color 140ms var(--ease), background 140ms var(--ease); }
+      .rmenu > summary::-webkit-details-marker { display: none; }
+      .rmenu > summary:hover, .rmenu[open] > summary { color: var(--ink); background: rgba(255,255,255,0.06); }
+      .rmenu > summary svg { width: 18px; height: 18px; fill: currentColor; }
+      .rmenu-pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 180px; padding: 6px;
+        background: linear-gradient(180deg, #201f22, #171618); border-radius: 12px;
+        box-shadow: 0 0 0 1px var(--hair-2), 0 18px 36px -12px rgba(0,0,0,0.9), 0 1px 0 var(--sheen) inset; }
+      .rmenu-item { width: 100%; display: flex; align-items: center; gap: 11px; height: 42px; padding: 0 12px; border: 0; border-radius: 8px;
+        background: transparent; color: var(--ink-2); cursor: pointer; font: 500 13px/1 "Space Grotesk", sans-serif; text-align: left;
+        transition: background 120ms var(--ease), color 120ms var(--ease); }
+      .rmenu-item:hover { background: rgba(255,255,255,0.06); color: var(--ink); }
+      .rmenu-item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+
+      :focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
+
+      @media (max-width: 860px) {
+        .main { grid-template-columns: 1fr; gap: 30px; }
+        .col-r { padding-left: 0; }
+        .col-r::before { display: none; }
+        .cast { grid-template-columns: 1fr; }
+        .head-right .status { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- HEADER -->
+      <header class="head">
+        <div class="brand"><span class="brand-mark"><i></i></span><h1>TubeLounge</h1></div>
+        <div class="head-right">
+          <div class="status">
+            <span class="stat conn"><span class="dot"></span> YouTube</span>
+            <span class="stat conn"><span class="dot"></span> Remote</span>
+          </div>
+          <button class="key gear" aria-label="TV setup">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- CAST BAR -->
+      <div class="cast">
+        <label class="cast-field">
+          <svg viewBox="0 0 24 24"><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><path d="M2 12a6 6 0 0 1 6 6"/><path d="M2 16a2 2 0 0 1 2 2"/></svg>
+          <input type="url" placeholder="Paste a YouTube URL to cast…" value="https://youtube.com/watch?v=jfKfPfyJRdk">
+        </label>
+        <button class="btn">Queue</button>
+        <button class="btn go">Cast now</button>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+        <!-- LEFT: now playing -->
+        <div class="col-l">
+          <div class="np">
+            <div class="np-thumb"><span class="onair"><i></i> ON AIR</span></div>
+            <div class="np-meta">
+              <p class="eyebrow">Now playing</p>
+              <h2>Lofi Hip Hop Radio — beats to relax and study to</h2>
+              <p class="src">youtube.com/watch?v=jfKfPfyJRdk</p>
+              <div class="scrub">
+                <div class="scrub-line"><span class="scrub-fill"></span><span class="scrub-knob"></span></div>
+                <div class="scrub-time"><span>00:42</span><span class="dur">03:18</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="transport">
+            <button class="key tkey" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm12 1-8 6 8 6z"/></svg></button>
+            <button class="tkey play" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg></button>
+            <button class="key tkey" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM6 6l8 6-8 6z"/></svg></button>
+          </div>
+
+          <div class="fader">
+            <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15 9a3 3 0 0 1 0 6"/><path d="M18 6a7 7 0 0 1 0 12"/></svg>
+            <div class="fader-track"><span class="fader-fill"></span><span class="fader-knob"></span></div>
+            <span class="fader-val">34</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: sources + remote -->
+        <div class="col-r">
+          <div class="pane-label"><span>Sources</span></div>
+          <div class="sources">
+            <button class="seg on">
+              <span class="logo logo-yt"><svg viewBox="0 0 28 20" width="22"><rect width="28" height="20" rx="5" fill="#FF0033"/><path d="M11.5 6 20 10l-8.5 4z" fill="#fff"/></svg></span> YouTube
+            </button>
+            <button class="seg">
+              <span class="logo logo-nf"><svg viewBox="0 0 20 24" width="15"><path fill="#E50914" d="M3 1h3.5l7 17V1H17v22h-3.5l-7-17v17H3z"/></svg></span> Netflix
+            </button>
+            <button class="seg">
+              <span class="logo logo-max">max</span> HBO Max
+            </button>
+          </div>
+
+          <div class="pane-label" style="margin-top:22px"><span>Remote</span><span class="meta mono">Tizen · 8002</span></div>
+          <div class="shortcuts">
+            <button class="key skey"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg>Wake</button>
+            <button class="key skey"><svg viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19h4v-5h4v5h4v-8.5"/></svg>Home</button>
+            <button class="key skey"><svg viewBox="0 0 24 24"><path d="M10 8 6 12l4 4"/><path d="M6 12h9a4 4 0 0 1 0 8"/></svg>Back</button>
+            <button class="key skey"><svg viewBox="0 0 24 24"><path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/></svg>Source</button>
+            <button class="key skey pwr"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M7.6 6.6a7 7 0 1 0 8.8 0"/></svg>Power</button>
+          </div>
+
+          <div class="nav">
+            <div class="dpad">
+              <button class="dbtn up" aria-label="Up"><svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></button>
+              <button class="dbtn left" aria-label="Left"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button>
+              <button class="ok">OK</button>
+              <button class="dbtn right" aria-label="Right"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+              <button class="dbtn down" aria-label="Down"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+            </div>
+            <div class="volcluster">
+              <div class="vrock">
+                <span class="vrock-shell" aria-hidden="true"><span class="vrock-seam"></span></span>
+                <button class="vrock-half up" type="button" aria-label="Volume up">
+                  <svg viewBox="0 0 18 18"><path d="M9 3v12M3 9h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+                <button class="vrock-half down" type="button" aria-label="Volume down">
+                  <svg viewBox="0 0 18 18"><path d="M3 9h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <div class="vol-side">
+                <output class="vol-readout" aria-label="Volume">34</output>
+                <span class="vol-cap">Volume</span>
+                <button class="key vol-mute" type="button" aria-label="Mute">
+                  <svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" stroke="none"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAY -->
+      <div class="tray">
+        <div class="tray-head"><h3>Up next</h3><span class="count">2 queued</span></div>
+        <div class="filmstrip">
+          <div class="film">
+            <div class="film-thumb"><span class="film-num">1</span><button class="film-rm" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+            <p class="film-title">Weightless — Marconi Union (extended)</p>
+          </div>
+          <div class="film">
+            <div class="film-thumb"><span class="film-num">2</span><button class="film-rm" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+            <p class="film-title">Tokyo night drive — 4K ambient city loop</p>
+          </div>
+          <div class="film" style="opacity:.5">
+            <div class="film-thumb" style="display:grid;place-items:center;color:var(--ink-4);font:400 11px/1 'DM Mono',monospace">＋ add more</div>
+            <p class="film-title" style="color:var(--ink-4)">Paste a URL to line one up</p>
+          </div>
+        </div>
+
+        <div class="recent">
+          <div class="tray-head" style="margin-bottom:2px"><h3>Recent</h3><span class="count">2 watched</span></div>
+          <div class="ritem">
+            <button class="rrow" type="button" aria-label="Play again: Coffee shop jazz">
+              <span class="rthumb"><svg class="rplay-ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+              <span class="rmeta"><strong>Coffee shop jazz — warm morning blend</strong><span>Played · 2h ago</span></span>
+            </button>
+            <details class="rmenu">
+              <summary aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></summary>
+              <div class="rmenu-pop">
+                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg> Play again</button>
+                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M4 7h11M4 12h11M4 17h7"/><path d="M18 12v7M14.5 15.5h7"/></svg> Add to queue</button>
+              </div>
+            </details>
+          </div>
+          <div class="ritem">
+            <button class="rrow" type="button" aria-label="Play again: Rainy window lofi">
+              <span class="rthumb"><svg class="rplay-ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+              <span class="rmeta"><strong>Rainy window lofi — 3 hour loop</strong><span>Played · yesterday</span></span>
+            </button>
+            <details class="rmenu">
+              <summary aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg></summary>
+              <div class="rmenu-pop">
+                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg> Play again</button>
+                <button class="rmenu-item"><svg viewBox="0 0 24 24"><path d="M4 7h11M4 12h11M4 17h7"/><path d="M18 12v7M14.5 15.5h7"/></svg> Add to queue</button>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

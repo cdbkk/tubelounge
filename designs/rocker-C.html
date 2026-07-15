@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TubeLounge · Rotary Deck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#0d0d0e;
+  --raised-top:#262528;
+  --raised-bot:#1a1a1c;
+  --well:#0a0a0b;
+  --hair:rgba(255,255,255,0.07);
+  --hair-2:rgba(255,255,255,0.12);
+  --sheen:rgba(255,255,255,0.05);
+  --ink:#f4f3f1;
+  --ink-2:#a4a3a0;
+  --ink-3:#6d6c69;
+  --ink-4:#484745;
+  --white-ink:#121213;
+  --live:#f0544c;
+  --ease:cubic-bezier(0.23,1,0.32,1);
+  --key-shadow:0 1px 0 var(--sheen) inset, 0 2px 4px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.45);
+  --key-shadow-down:0 1px 0 var(--sheen) inset, 0 1px 1px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.45);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:
+    radial-gradient(1100px 620px at 50% 32%, #141315, transparent 70%),
+    var(--bg);
+  font-family:"Space Grotesk", sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  padding:40px 20px;
+}
+
+.stage{ display:flex; flex-direction:column; align-items:center; gap:18px; }
+
+.eyebrow{
+  font-family:"DM Mono", monospace;
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.eyebrow::before,
+.eyebrow::after{
+  content:"";
+  display:block;
+  width:36px;
+  height:1px;
+  background:var(--hair-2);
+}
+
+/* ---------- panel ---------- */
+
+.panel{
+  width:760px;
+  max-width:100%;
+  padding:60px;
+  border-radius:28px;
+  background:linear-gradient(180deg, #17161a, #111013 82%);
+  box-shadow:
+    inset 0 1px 0 var(--sheen),
+    inset 0 0 0 1px var(--hair),
+    0 0 0 1px rgba(0,0,0,0.7),
+    0 30px 70px rgba(0,0,0,0.55),
+    0 10px 24px rgba(0,0,0,0.45);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+/* ---------- shared tactile key ---------- */
+
+.key{
+  position:relative;
+  border:0;
+  cursor:pointer;
+  color:var(--ink-2);
+  background:linear-gradient(180deg, var(--raised-top), var(--raised-bot));
+  box-shadow:var(--key-shadow);
+  display:grid;
+  place-items:center;
+  transition:transform 110ms var(--ease), box-shadow 110ms var(--ease), color 110ms var(--ease);
+}
+.key::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:rgba(255,255,255,0.045);
+  opacity:0;
+  transition:opacity 110ms var(--ease);
+  pointer-events:none;
+}
+.key:hover{ color:var(--ink); }
+.key:hover::after{ opacity:1; }
+.key:active{ transform:translateY(1px); box-shadow:var(--key-shadow-down); }
+.key:focus-visible{ outline:2px solid var(--ink-2); outline-offset:3px; }
+
+.key svg{ display:block; }
+
+/* ---------- dial group ---------- */
+
+.dial{
+  display:grid;
+  grid-template-columns:auto auto auto;
+  grid-template-rows:auto auto;
+  align-items:center;
+  justify-items:center;
+  column-gap:12px;
+  row-gap:18px;
+}
+
+.step{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+}
+
+.dial-label{
+  grid-column:1 / -1;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--ink-2);
+}
+
+/* knob + tick ring */
+
+.knob-wrap{
+  position:relative;
+  width:160px;
+  height:160px;
+  display:grid;
+  place-items:center;
+}
+
+.ticks{ position:absolute; inset:0; }
+.ticks i{
+  position:absolute;
+  top:0;
+  left:calc(50% - 1px);
+  width:2px;
+  height:7px;
+  border-radius:1px;
+  background:var(--ink-4);
+  transform-origin:1px 80px;
+  transform:rotate(var(--a));
+}
+.ticks i.on{ background:var(--ink-2); }
+
+.knob{
+  position:relative;
+  width:128px;
+  height:128px;
+  border-radius:50%;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(0,0,0,0.30)),
+    repeating-conic-gradient(var(--raised-top) 0deg 3.5deg, var(--raised-bot) 3.5deg 7deg);
+  box-shadow:
+    0 1px 0 var(--sheen) inset,
+    0 3px 8px rgba(0,0,0,0.55),
+    0 16px 34px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(0,0,0,0.55);
+}
+
+.cap{
+  position:absolute;
+  inset:14px;
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 24%, #2b2a2e, var(--raised-bot) 62%, #151416);
+  box-shadow:
+    inset 0 1px 0 var(--sheen),
+    inset 0 -10px 18px rgba(0,0,0,0.35),
+    0 2px 6px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(0,0,0,0.55);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+}
+
+.needle{ position:absolute; inset:0; transform:rotate(var(--point)); pointer-events:none; }
+.needle::before{
+  content:"";
+  position:absolute;
+  top:7px;
+  left:calc(50% - 1.5px);
+  width:3px;
+  height:13px;
+  border-radius:2px;
+  background:var(--ink);
+  box-shadow:0 0 6px rgba(244,243,241,0.22);
+}
+
+.val{
+  font-family:"DM Mono", monospace;
+  font-variant-numeric:tabular-nums;
+  font-weight:500;
+  font-size:27px;
+  line-height:1;
+  color:var(--ink);
+}
+.unit{
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+/* ---------- center transport ---------- */
+
+.transport{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  padding-bottom:14px;
+}
+
+.hero{
+  width:74px;
+  height:74px;
+  border-radius:50%;
+  color:var(--white-ink);
+  background:linear-gradient(180deg, #ffffff, #e7e5e1);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 3px 6px rgba(0,0,0,0.55),
+    0 14px 30px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(0,0,0,0.5);
+}
+.hero::after{ background:rgba(255,255,255,0.5); }
+.hero:hover{ color:var(--white-ink); }
+.hero:active{
+  transform:translateY(1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 1px 2px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(0,0,0,0.5);
+}
+.hero:focus-visible{ outline:2px solid var(--ink); outline-offset:4px; }
+
+.mute{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  letter-spacing:0.26em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.status .dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--live);
+  box-shadow:0 0 8px rgba(240,84,76,0.55);
+}
+
+.mute-label{
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  letter-spacing:0.26em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <p class="eyebrow">TubeLounge · Control Deck</p>
+
+  <div class="panel">
+
+    <!-- VOLUME dial -->
+    <div class="dial">
+      <button class="key step" type="button" aria-label="Volume down">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3.5" y1="8" x2="12.5" y2="8"/></svg>
+      </button>
+
+      <div class="knob-wrap">
+        <div class="ticks" aria-hidden="true">
+          <i class="on" style="--a:-135deg"></i>
+          <i class="on" style="--a:-108deg"></i>
+          <i class="on" style="--a:-81deg"></i>
+          <i class="on" style="--a:-54deg"></i>
+          <i style="--a:-27deg"></i>
+          <i style="--a:0deg"></i>
+          <i style="--a:27deg"></i>
+          <i style="--a:54deg"></i>
+          <i style="--a:81deg"></i>
+          <i style="--a:108deg"></i>
+          <i style="--a:135deg"></i>
+        </div>
+        <div class="knob">
+          <div class="needle" style="--point:-43.2deg"></div>
+          <div class="cap">
+            <span class="val">34</span>
+            <span class="unit">Vol</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="key step" type="button" aria-label="Volume up">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3.5" y1="8" x2="12.5" y2="8"/><line x1="8" y1="3.5" x2="8" y2="12.5"/></svg>
+      </button>
+
+      <p class="dial-label">Volume</p>
+    </div>
+
+    <!-- transport -->
+    <div class="transport">
+      <button class="key hero" type="button" aria-label="Pause">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6.6" y="5" width="3.8" height="14" rx="1.7"/><rect x="13.6" y="5" width="3.8" height="14" rx="1.7"/></svg>
+      </button>
+      <p class="status"><span class="dot"></span>Playing</p>
+      <button class="key mute" type="button" aria-label="Mute" aria-pressed="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3.5v6h3L11 19V5z" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="15.5" y1="9.5" x2="20.5" y2="14.5"/><line x1="20.5" y1="9.5" x2="15.5" y2="14.5"/></g></svg>
+      </button>
+      <p class="mute-label">Mute</p>
+    </div>
+
+    <!-- CHANNEL dial -->
+    <div class="dial">
+      <button class="key step" type="button" aria-label="Channel down">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3.5" y1="8" x2="12.5" y2="8"/></svg>
+      </button>
+
+      <div class="knob-wrap">
+        <div class="ticks" aria-hidden="true">
+          <i class="on" style="--a:-135deg"></i>
+          <i class="on" style="--a:-108deg"></i>
+          <i class="on" style="--a:-81deg"></i>
+          <i style="--a:-54deg"></i>
+          <i style="--a:-27deg"></i>
+          <i style="--a:0deg"></i>
+          <i style="--a:27deg"></i>
+          <i style="--a:54deg"></i>
+          <i style="--a:81deg"></i>
+          <i style="--a:108deg"></i>
+          <i style="--a:135deg"></i>
+        </div>
+        <div class="knob">
+          <div class="needle" style="--point:-81deg"></div>
+          <div class="cap">
+            <span class="val">12</span>
+            <span class="unit">CH</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="key step" type="button" aria-label="Channel up">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3.5" y1="8" x2="12.5" y2="8"/><line x1="8" y1="3.5" x2="8" y2="12.5"/></svg>
+      </button>
+
+      <p class="dial-label">Channel</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

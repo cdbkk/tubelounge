@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TubeLounge — Rocker Deck A</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#0d0d0e;
+  --raised-top:#262528;
+  --raised-bot:#1a1a1c;
+  --well:#0a0a0b;
+  --hair:rgba(255,255,255,0.07);
+  --hair-2:rgba(255,255,255,0.12);
+  --sheen:rgba(255,255,255,0.05);
+  --ink:#f4f3f1;
+  --ink-2:#a4a3a0;
+  --ink-3:#6d6c69;
+  --ink-4:#484745;
+  --white-ink:#121213;
+  --live:#f0544c;
+  --ease:cubic-bezier(0.23,1,0.32,1);
+  --key-shadow:0 1px 0 var(--sheen) inset, 0 2px 4px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.45);
+  --key-shadow-down:0 1px 0 var(--sheen) inset, 0 1px 1px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.45);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html,body{ height:100%; }
+
+body{
+  background:
+    radial-gradient(1100px 700px at 50% 28%, rgba(255,255,255,0.025), transparent 70%),
+    var(--bg);
+  font-family:"Space Grotesk", system-ui, sans-serif;
+  color:var(--ink);
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+  padding:48px 24px;
+  -webkit-font-smoothing:antialiased;
+}
+
+button{
+  font:inherit;
+  border:0;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+button:focus-visible{
+  outline:2px solid var(--ink-2);
+  outline-offset:3px;
+}
+
+.unit{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.eyebrow{
+  font-family:"DM Mono", monospace;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  margin-bottom:18px;
+}
+.eyebrow em{
+  font-style:normal;
+  color:var(--ink-4);
+  letter-spacing:0.28em;
+}
+
+/* ---------- deck panel ---------- */
+
+.panel{
+  width:760px;
+  max-width:100%;
+  padding:60px;
+  border-radius:32px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008) 55%),
+    var(--bg);
+  border:1px solid var(--hair);
+  box-shadow:
+    0 1px 0 var(--sheen) inset,
+    0 30px 70px rgba(0,0,0,0.55),
+    0 8px 22px rgba(0,0,0,0.4);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:80px;
+}
+
+/* ---------- seesaw rockers ---------- */
+
+.rocker-group{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.rocker{
+  position:relative;
+  width:104px;
+  height:312px;
+  border-radius:52px;
+  background:var(--well);
+  box-shadow:
+    inset 0 3px 9px rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 -1px 0 rgba(255,255,255,0.04),
+    0 1px 0 var(--sheen);
+  perspective:900px;
+}
+
+/* the one-piece rocker body that tilts on its fulcrum */
+.shell{
+  position:absolute;
+  inset:6px;
+  border-radius:46px;
+  background:linear-gradient(180deg, var(--raised-top), var(--raised-bot));
+  box-shadow:var(--key-shadow);
+  transition:transform 0.09s var(--ease), box-shadow 0.09s var(--ease);
+  transform-origin:50% 50%;
+  pointer-events:none;
+}
+.shell::before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:45px;
+  background:
+    radial-gradient(130% 55% at 50% 0%, var(--sheen), transparent 60%),
+    radial-gradient(130% 45% at 50% 100%, rgba(0,0,0,0.28), transparent 60%);
+  pointer-events:none;
+}
+
+/* pivot seam across the middle */
+.seam{
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:50%;
+  height:1px;
+  background:rgba(0,0,0,0.6);
+  box-shadow:0 1px 0 rgba(255,255,255,0.07);
+}
+
+/* raised centre fulcrum */
+.fulcrum{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  min-width:48px;
+  padding:5px 0;
+  border-radius:11px;
+  background:linear-gradient(180deg, var(--raised-top), var(--raised-bot));
+  box-shadow:
+    0 1px 0 var(--sheen) inset,
+    0 2px 3px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(0,0,0,0.5);
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:0.18em;
+  text-align:center;
+  color:var(--ink-4);
+  text-shadow:0 1px 0 rgba(0,0,0,0.5);
+}
+
+/* invisible press zones over each end of the rocker */
+.half{
+  position:absolute;
+  left:6px;
+  right:6px;
+  background:transparent;
+  color:var(--ink-2);
+  display:flex;
+  justify-content:center;
+  transition:color 0.12s var(--ease);
+}
+.half svg{
+  transition:transform 0.09s var(--ease);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,0.55));
+}
+.half.up{
+  top:6px;
+  bottom:50%;
+  border-radius:46px 46px 12px 12px;
+  align-items:flex-start;
+  padding-top:32px;
+}
+.half.down{
+  top:50%;
+  bottom:6px;
+  border-radius:12px 12px 46px 46px;
+  align-items:flex-end;
+  padding-bottom:32px;
+}
+.half:hover{ color:var(--ink); }
+.half.up:hover{
+  background:radial-gradient(90% 60% at 50% 0%, rgba(255,255,255,0.04), transparent 70%);
+}
+.half.down:hover{
+  background:radial-gradient(90% 60% at 50% 100%, rgba(255,255,255,0.04), transparent 70%);
+}
+.half:active{ color:var(--ink); }
+.half.up:active{
+  background:linear-gradient(180deg, rgba(0,0,0,0.3), transparent 80%);
+}
+.half.down:active{
+  background:linear-gradient(0deg, rgba(0,0,0,0.3), transparent 80%);
+}
+.half.up:active svg{ transform:translateY(1px); }
+.half.down:active svg{ transform:translateY(1px); }
+.half:focus-visible{ outline-offset:-6px; }
+
+/* seesaw tilt */
+.rocker:has(.up:active) .shell{
+  transform:rotateX(6deg);
+  box-shadow:var(--key-shadow-down);
+}
+.rocker:has(.down:active) .shell{
+  transform:rotateX(-6deg);
+  box-shadow:var(--key-shadow-down);
+}
+
+/* ---------- captions + readouts ---------- */
+
+.meta{
+  margin-top:22px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+
+.cap{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.readout{
+  font-family:"DM Mono", monospace;
+  font-variant-numeric:tabular-nums;
+  font-size:21px;
+  font-weight:500;
+  line-height:1;
+  color:var(--ink);
+  background:var(--well);
+  padding:9px 20px;
+  border-radius:10px;
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.65),
+    inset 0 0 0 1px rgba(0,0,0,0.55),
+    0 1px 0 var(--sheen);
+  text-shadow:0 0 10px rgba(244,243,241,0.18);
+}
+
+/* ---------- centre column ---------- */
+
+.center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:14px;
+}
+
+.socket{
+  width:132px;
+  height:132px;
+  border-radius:50%;
+  background:var(--well);
+  box-shadow:
+    inset 0 3px 9px rgba(0,0,0,0.7),
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    0 1px 0 var(--sheen);
+  display:grid;
+  place-items:center;
+}
+
+.hero{
+  width:112px;
+  height:112px;
+  border-radius:50%;
+  background:linear-gradient(180deg, #fbfaf8, #e6e4e0);
+  color:var(--white-ink);
+  display:grid;
+  place-items:center;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 -8px 14px rgba(0,0,0,0.1) inset,
+    0 3px 6px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(0,0,0,0.45),
+    0 12px 26px rgba(0,0,0,0.35);
+  transition:transform 0.09s var(--ease), box-shadow 0.09s var(--ease), filter 0.12s var(--ease);
+}
+.hero:hover{ filter:brightness(1.035); }
+.hero:active{
+  transform:translateY(1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.75) inset,
+    0 -8px 14px rgba(0,0,0,0.14) inset,
+    0 1px 2px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(0,0,0,0.45),
+    0 6px 16px rgba(0,0,0,0.3);
+}
+
+.hero-meta{
+  margin-top:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+.status{
+  font-family:"DM Mono", monospace;
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+}
+
+.key{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:linear-gradient(180deg, var(--raised-top), var(--raised-bot));
+  color:var(--ink-2);
+  display:grid;
+  place-items:center;
+  box-shadow:var(--key-shadow);
+  transition:transform 0.09s var(--ease), box-shadow 0.09s var(--ease), color 0.12s var(--ease);
+}
+.key:hover{ color:var(--ink); }
+.key:active{
+  transform:translateY(1px);
+  box-shadow:var(--key-shadow-down);
+}
+.key svg{ filter:drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
+
+.mute-block{
+  margin-top:34px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="unit">
+  <p class="eyebrow">Tubelounge <em>·</em> Control Deck <em>·</em> 01</p>
+
+  <section class="panel" aria-label="TV remote controls">
+
+    <!-- VOLUME rocker -->
+    <div class="rocker-group">
+      <div class="rocker">
+        <div class="shell" aria-hidden="true">
+          <span class="seam"></span>
+        </div>
+        <button class="half up" type="button" aria-label="Volume up">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="half down" type="button" aria-label="Volume down">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="meta">
+        <span class="cap" id="vol-cap">Volume</span>
+        <output class="readout" aria-labelledby="vol-cap">34</output>
+      </div>
+    </div>
+
+    <!-- centre: play/pause hero + mute -->
+    <div class="center">
+      <div class="socket">
+        <button class="hero" type="button" aria-label="Pause">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true">
+            <rect x="6.5" y="5" width="5" height="18" rx="2.2"/>
+            <rect x="16.5" y="5" width="5" height="18" rx="2.2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="hero-meta">
+        <span class="cap">Pause</span>
+        <span class="status">Now Playing</span>
+      </div>
+
+      <div class="mute-block">
+        <button class="key" type="button" aria-label="Mute" aria-pressed="false">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+            <path d="M3.5 8.5v5h3.2L11 17V5L6.7 8.5H3.5z" fill="currentColor"/>
+            <path d="M14.2 8.2l4.6 5.6M18.8 8.2l-4.6 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <span class="cap">Mute</span>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+</body>
+</html>
